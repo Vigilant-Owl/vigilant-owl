@@ -1,15 +1,52 @@
-import express, { Request, Response } from "express";
+import express from "express";
+import { Logger } from "./infrastructure/logger/logger.service";
+import { errorHandler } from "./presentation/middlewares/error.middleware";
+import { setupMessageRoutes } from "./presentation/routes/messages.routes";
+import { SupabaseMessageRepository } from "./infrastructure/supabase/repositories/message.repository";
+import { MessageService } from "./application/services/message.service";
+import { MessagesController } from "./presentation/controllers/messages.controller";
+import { WhatsAppClient } from "./infrastructure/whatsapp/client";
 
-const app = express();
+async function bootstrap() {
+  // Initialize infrastructure
+  const logger = new Logger();
+  const app = express();
 
-const PORT = process.env.PORT || 3000;
+  try {
+    // Initialize repositories
+    const messageRepository = new SupabaseMessageRepository();
 
-app.use(express.json());
+    // Initialize services
+    const messageService = new MessageService(messageRepository);
 
-app.get("/", (req: Request, res: Response) => {
-  res.send("Welcome to the Vigilant Owl API!");
-});
+    // Initialize controllers
+    const messagesController = new MessagesController(messageService);
 
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+    // Initialize WhatsApp client
+    const whatsappClient = new WhatsAppClient(messageService);
+    await whatsappClient.initialize();
+
+    // Setup routes
+    const router = express.Router();
+    setupMessageRoutes(router, messagesController);
+
+    // Setup middleware
+    app.use(express.json());
+    app.use("/api", router);
+    app.use(errorHandler(logger));
+
+    // Start server
+    const port = process.env.PORT || 3000;
+    app.listen(port, () => {
+      logger.info(`Server started on port ${port}`);
+    });
+  } catch (error) {
+    logger.error(error);
+    process.exit(1);
+  }
+}
+
+bootstrap().catch((error) => {
+  console.error("Failed to start application:", error);
+  process.exit(1);
 });
