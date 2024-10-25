@@ -1,12 +1,15 @@
 import { Request, Response } from "express";
-import { ProcessMessageUseCase } from "@/application/use-cases/process-message.use-case";
+import processMessageUseCase, {
+  ProcessMessageUseCase,
+} from "@/application/use-cases/process-message.use-case";
 
-export class MessagesController {
+export class MessageController {
   constructor(private processMessageUseCase: ProcessMessageUseCase) {}
 
   async processMessage(req: Request, res: Response) {
     try {
       const message = await this.processMessageUseCase.execute({
+        id: req.body.id,
         groupId: req.body.groupId,
         content: req.body.content,
         sender: req.body.sender,
@@ -18,3 +21,6 @@ export class MessagesController {
     }
   }
 }
+
+const messageController = new MessageController(processMessageUseCase);
+export default messageController;

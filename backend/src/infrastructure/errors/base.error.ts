@@ -1,8 +1,8 @@
 export class BaseError extends Error {
   constructor(
     public message: string,
-    public code: string,
-    public status: number,
+    public readonly code: string,
+    public readonly status: number,
     public metadata?: Record<string, any>
   ) {
     super(message);

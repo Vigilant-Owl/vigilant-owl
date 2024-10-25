@@ -11,7 +11,6 @@ export class Message {
   // Domain business rules/behavior
   public updateSentiment(sentiment: SentimentAnalysis): void {
     this.sentiment = sentiment;
-    // Add any validation or business rules here
   }
 
   public isProcessed(): boolean {

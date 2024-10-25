@@ -1,6 +1,8 @@
 import { Message } from "@/domain/entities/message.entity";
 import { IMessageRepository } from "../interfaces/repositories/message-repository.interface";
 import { ISentimentAnalysisService } from "../interfaces/services/sentiment-analysis.interface";
+import { CreateMessageDTO } from "@/presentation/dtos/message.dto";
+import messageRepository from "@/infrastructure/supabase/repositories/message.repository";
 
 export class MessageService {
   constructor(
@@ -21,3 +23,6 @@ export class MessageService {
     return this.messageRepository.updateSentiment(message.id, sentiment);
   }
 }
+
+const messageService = new MessageService(messageRepository, null);
+export default messageService;

@@ -1,4 +1,8 @@
 import { Message } from "@/domain/entities/message.entity";
+import {
+  CreateMessageDTO,
+  SentimentDTO,
+} from "@/presentation/dtos/message.dto";
 
 export interface IMessageRepository {
   create(message: CreateMessageDTO): Promise<Message>;

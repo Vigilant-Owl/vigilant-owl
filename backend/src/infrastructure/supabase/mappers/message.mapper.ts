@@ -1,3 +1,5 @@
+import { Message } from "@/domain/entities/message.entity";
+
 export class MessageMapper {
   toDomain(raw: any): Message {
     return new Message(

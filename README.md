@@ -40,6 +40,6 @@ Vigilant Owl is a service designed to provide parents with non-intrusive insight
 ### Clone the Repository
 
 ```bash
-git clone https://github.com/demi-repo/vigilant-owl.git
+git clone https://github.com/Vigilant-Owl/vigilant-owl.git
 cd vigilant-owl
 ```
