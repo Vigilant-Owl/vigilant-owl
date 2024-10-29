@@ -1,4 +1,4 @@
-const { Client } = require("whatsapp-web");
+const { Client } = require("whatsapp-web.js");
 const fs = require("fs");
 
 const SESSION_FILE_PATH = "storage/sessions/session.json";

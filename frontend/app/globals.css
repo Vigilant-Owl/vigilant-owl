@@ -25,3 +25,7 @@ body {
     text-wrap: balance;
   }
 }
+
+.dark-modal label {
+  color: var(--background) !important;
+}
