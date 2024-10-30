@@ -1,22 +1,32 @@
-const express = require("express");
-const cors = require("cors");
-const bodyParser = require("body-parser");
+try {
+  const express = require("express");
+  const cors = require("cors");
 
-require("dotenv").config();
+  require("dotenv").config();
 
-const app = express();
+  const app = express();
 
-app.use(cors());
-app.use(bodyParser);
+  app.use(cors());
+  app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
 
-const router = require("./routes");
+  const router = require("./routes");
 
-app.use("/api", router);
+  app.use("/api", router);
 
-const PORT = process.env.PORT || 8000;
+  const PORT = process.env.PORT || 8000;
 
-// require("./services/whatsapp/whatsapp.service");
+  const server = app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+  });
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+  require("./services");
+
+  server.on("upgrade", (request, socket, head) => {
+    global.wsServer.handleUpgrade(request, socket, head, (ws) => {
+      global.wsServer.emit("connection", ws, request);
+    });
+  });
+} catch (err) {
+  console.error(err);
+}

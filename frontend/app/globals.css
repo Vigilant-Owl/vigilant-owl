@@ -29,3 +29,8 @@ body {
 .dark-modal label {
   color: var(--background) !important;
 }
+
+body {
+  background: linear-gradient(135deg, #151718, #333333);
+  color: #ffffff; /* Ensure text is readable */
+}

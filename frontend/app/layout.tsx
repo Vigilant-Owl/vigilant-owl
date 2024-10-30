@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Header from "./layout/Header";
+import Navbar from "./layout/Navbar";
 import Footer from "./layout/Footer";
 import Provider from "./provider";
 
@@ -16,11 +16,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className="dark bg-[#151718] text-white"
-      >
+      <body className="dark" >
         <Provider>
-          <Header />
+          <Navbar />
           <div className="flex-grow">
             {children}
           </div>

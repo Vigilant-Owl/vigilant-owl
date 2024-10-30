@@ -7,8 +7,10 @@ import { toast } from "sonner";
 import Joi from 'joi';
 import { apiLoginUser } from "../apis/auth";
 import { ResponseData } from "../types";
+import { createClient } from "@/utils/supabase/client";
 
 const Login = () => {
+  const supabase = createClient();
   const { onClose, isOpen, onOpenChange, onOpen } = useDisclosure();
   const [loading, setLoading] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
@@ -47,6 +49,21 @@ const Login = () => {
 
       console.log(response);
 
+      const { data: loginData, error } = await supabase.auth.signInWithPassword(
+        data
+      );
+
+      if (error) {
+        setLoading(false);
+        return toast.error(error.message);
+      }
+
+      const { data: userData } = await supabase.from("profiles").select("*").eq("email", data.email).single();
+
+      console.log(userData);
+
+      toast.success("Welcome to vigilant owl!");
+      onClose();
     } catch (err) {
       console.error(err);
     } finally {
@@ -75,6 +92,7 @@ const Login = () => {
                   label="Email"
                   name="email"
                   labelPlacement="outside"
+                  isDisabled={loading}
                 />
                 <Input
                   placeholder="Enter your password"
@@ -83,6 +101,7 @@ const Login = () => {
                   label="Password"
                   name="password"
                   labelPlacement="outside"
+                  isDisabled={loading}
                   endContent={
                     <button className="focus:outline-none" type="button" onClick={() => setIsVisible(!isVisible)}>
                       {isVisible ? (
@@ -114,7 +133,7 @@ const Login = () => {
             </form>
           )}
         </ModalContent>
-      </Modal >
+      </Modal>
     </>
   );
 }

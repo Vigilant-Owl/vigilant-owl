@@ -23,6 +23,16 @@ global.client = new Client({
 
 global.client.on("qr", (qr) => {
   fs.writeFileSync("storage/qrcodes/last.qr", qr);
+  let sendData = {
+    type: "qrcode",
+    qrCode: qr,
+  };
+  console.log(sendData);
+  global.wsServer.clients.forEach((client) => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(JSON.stringify(sendData));
+    }
+  });
 });
 
 global.client.on("authenticated", (session) => {
@@ -52,9 +62,7 @@ global.client.on("ready", () => {
 });
 
 global.client.on("message", (msg) => {
-  if (config.webhook.enabled) {
-    axios.post(config.webhook.path, { msg });
-  }
+  console.log(msg);
 });
 
 global.client.initialize();

@@ -6,9 +6,11 @@ import { IoMdEye, IoMdEyeOff } from "react-icons/io";
 import { toast } from "sonner";
 import Joi from 'joi';
 import { RegisterData, ResponseData } from "../types";
+import { createClient } from "@/utils/supabase/client";
 import { apiRegisterUser } from "../apis/auth";
 
 const Register = () => {
+  const supabase = createClient();
   const { onClose, isOpen, onOpenChange, onOpen } = useDisclosure();
   const [loading, setLoading] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
@@ -56,6 +58,30 @@ const Register = () => {
 
       console.log(response);
 
+      const { error } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
+      });
+
+      if (error) {
+        setLoading(false);
+        return toast.error(error.message);
+      }
+
+      const { error: insertError } = await supabase
+        .from("profiles")
+        .update({
+          first_name: data.firstName,
+          last_name: data.lastName
+        })
+        .eq("email", data.email);
+      if (insertError) {
+        setLoading(false);
+        return toast.error(insertError.message);
+      }
+
+      toast.success("Welcome to vigilant owl!");
+      onClose();
     } catch (err) {
       console.error(err);
     } finally {
@@ -86,6 +112,7 @@ const Register = () => {
                     labelPlacement="outside"
                     name="firstName"
                     isRequired
+                    isDisabled={loading}
                   />
                   <Input
                     type="text"
@@ -95,6 +122,7 @@ const Register = () => {
                     labelPlacement="outside"
                     name="lastName"
                     isRequired
+                    isDisabled={loading}
                   />
                 </div>
                 <Input
@@ -105,6 +133,7 @@ const Register = () => {
                   label="Email"
                   name="email"
                   labelPlacement="outside"
+                  isDisabled={loading}
                 />
                 <Input
                   placeholder="Enter your password"
@@ -113,6 +142,7 @@ const Register = () => {
                   label="Password"
                   name="password"
                   labelPlacement="outside"
+                  isDisabled={loading}
                   endContent={
                     <button className="focus:outline-none" type="button" onClick={() => setIsVisible(!isVisible)}>
                       {isVisible ? (
@@ -130,6 +160,7 @@ const Register = () => {
                   placeholder="Confirm your password"
                   labelPlacement="outside"
                   isRequired
+                  isDisabled={loading}
                 />
               </ModalBody>
               <ModalFooter>

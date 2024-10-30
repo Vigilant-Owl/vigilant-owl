@@ -8,7 +8,7 @@ const Provider = ({ children }: Readonly<{
   return (
     <React.StrictMode>
       <NextUIProvider>
-        <Toaster position="top-center" />
+        <Toaster position="top-right" />
         <div className="flex flex-col min-h-screen w-full items-center justify-items-center text-opacity-80">
           {children}
         </div>
