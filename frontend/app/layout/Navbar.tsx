@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import Link from "next/link";
@@ -104,7 +105,7 @@ const Header = () => {
       className={`max-w-[1120px] text-2xl ${lato.className}`}
     >
       <NavbarContent className="sm:hidden" justify="start">
-        <NavbarMenuToggle aria-label={isMenuOpen ? "Close menu" : "Open menu"} />
+        <NavbarMenuToggle aria-label={isMenuOpen ? "Close menu" : "Open menu"} onToggle={() => setIsMenuOpen(!isMenuOpen)} />
       </NavbarContent>
 
       <NavbarContent className="sm:hidden pr-3" justify="center">

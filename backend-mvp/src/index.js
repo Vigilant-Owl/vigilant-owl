@@ -14,6 +14,10 @@ try {
 
   app.use("/api", router);
 
+  app.get("/", (req, res) => {
+    res.send("Server is running!");
+  });
+
   const PORT = process.env.PORT || 8000;
 
   const server = app.listen(PORT, () => {

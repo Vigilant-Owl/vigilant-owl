@@ -49,7 +49,7 @@ const Login = () => {
 
       console.log(response);
 
-      const { data: loginData, error } = await supabase.auth.signInWithPassword(
+      const { error } = await supabase.auth.signInWithPassword(
         data
       );
 

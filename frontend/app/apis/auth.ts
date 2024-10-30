@@ -1,5 +1,5 @@
 import axios from "axios";
-import { LoginData, RegisterData, ResponseData } from "../types";
+import { LoginData, RegisterData } from "../types";
 
 const apiBaseUrl =
   process.env.NEXT_PUBLIC_SERVER_API || "http://localhost:8000/api";
