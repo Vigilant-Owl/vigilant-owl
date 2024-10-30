@@ -24,7 +24,10 @@ global.client = new Client({
 
 global.client.on("qr", async (qr) => {
   console.log(qr);
-  const { error } = await supabase.from("qrcodes").insert({ qrcode: qr });
+  const { error } = await supabase
+    .from("qrcodes")
+    .update({ qrcode: qr })
+    .eq("id", 1);
   if (error) {
     console.error(error);
   }

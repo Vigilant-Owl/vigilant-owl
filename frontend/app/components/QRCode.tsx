@@ -1,19 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 
-import { Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure } from "@nextui-org/react";
+// import { Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure } from "@nextui-org/react";
 import { useEffect, useState } from "react";
-import QRCode from "react-qr-code";
+import { useQRCode } from 'next-qrcode';
 // import useWebSocket, { ReadyState } from "react-use-websocket";
-import { IoQrCode } from "react-icons/io5";
+// import { IoQrCode } from "react-icons/io5";
 import { createClient } from "@/utils/supabase/client";
 
 // const WS_URL = process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8000";
 
 const WhatsAppBot = () => {
   const supabase = createClient();
-  const { onClose, isOpen, onOpenChange, onOpen } = useDisclosure();
-  const [qrCode, setQrCode] = useState("");
+  const { Canvas } = useQRCode();
+  // const { onClose, isOpen, onOpenChange, onOpen } = useDisclosure();
+  const [qrCode, setQrCode] = useState("2@NbOCZPNg1wb1LtlDGzfoVrHuUrnA4Kv7N5c23v01X5SqAcy0NclyGQEU5Vh26too+LClckUZ6kIN8MNub0+bqPT2B6smo9rO8HY=,wS/voiQ4pEqvwAp82lHcZhQkeeFA8kgi2LY8u1BK/Vg=,NUI3NPFxTSfNmZELunhk7uh2eYdihiN7YHnrqWQu1hI=,M6PfUTf2pVcJHmJH5L13h72iZFa32EJTu+SGTXXYplI=,1");
   // const { sendJsonMessage, readyState, lastMessage } = useWebSocket(WS_URL, {
   //   onOpen: () => {
   //     console.log("WebSocket connection established.");
@@ -50,7 +51,7 @@ const WhatsAppBot = () => {
     try {
       // const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_API}/whatsapp/getqr`);
       // const { qrcode } = await response.json();
-      const { data }: { data: any } = await supabase.from("qrcodes").select("qrcode").order("created_at", { ascending: false }).limit(1);
+      const { data }: { data: any } = await supabase.from("qrcodes").select("qrcode").eq("id", 1);
       if (data === null && data.length === 0) {
         return;
       }
@@ -64,7 +65,7 @@ const WhatsAppBot = () => {
 
   const setQRCode = async (payload: any) => {
     try {
-      if (payload.eventType === "INSERT") {
+      if (payload.eventType === "UPDATE") {
         console.log(payload.new.qrcode);
         setQrCode(payload.new.qrcode);
       }
@@ -74,7 +75,7 @@ const WhatsAppBot = () => {
   }
 
   useEffect(() => {
-    const channel = supabase.channel("qrcodes").on("postgres_changes", { event: "INSERT", schema: "public", table: "qrcodes" }, setQRCode).subscribe();
+    const channel = supabase.channel("qrcodes").on("postgres_changes", { event: "UPDATE", schema: "public", table: "qrcodes" }, setQRCode).subscribe();
     handleGetQRCode();
     return () => {
       channel.unsubscribe();
@@ -83,7 +84,7 @@ const WhatsAppBot = () => {
 
   return (
     <>
-      <Button onClick={() => onOpen()} color="success" radius="full" variant="flat" className="w-10" isIconOnly>
+      {/* <Button onClick={() => onOpen()} color="success" radius="full" variant="flat" className="w-10" isIconOnly>
         <IoQrCode />
       </Button>
       <Modal onClose={onClose} isOpen={isOpen} onOpenChange={onOpenChange}>
@@ -93,14 +94,21 @@ const WhatsAppBot = () => {
               <ModalHeader className="flex flex-col gap-1">
                 Install
               </ModalHeader>
-              <ModalBody>
-                <QRCode
-                  size={256}
-                  style={{ height: "auto", maxWidth: "100%", width: "100%" }}
-                  viewBox={`0 0 256 256`}
-                  value={qrCode}
-                />
-              </ModalBody>
+              <ModalBody> */}
+      <Canvas
+        text={qrCode}
+        options={{
+          errorCorrectionLevel: 'M',
+          margin: 2,
+          scale: 4,
+          width: 400,
+          color: {
+            // dark: '#010599FF',
+            // light: '#FFBF60FF',
+          },
+        }}
+      />
+      {/* </ModalBody>
               <ModalFooter>
                 <Button
                   aria-label="close"
@@ -109,11 +117,11 @@ const WhatsAppBot = () => {
                 >
                   Close
                 </Button>
-              </ModalFooter>
+              </ModalFooter> 
             </>
           )}
         </ModalContent>
-      </Modal>
+      </Modal>*/}
     </>
   )
 }

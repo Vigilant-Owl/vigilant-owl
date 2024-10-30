@@ -10,7 +10,7 @@ import { createClient } from "@/utils/supabase/client";
 import { useCallback, useEffect, useState } from "react";
 import { UserData } from "@/types";
 import { toast } from "sonner";
-import QRCode from "@/components/QRCode";
+// import QRCode from "@/components/QRCode";
 import { Navbar, NavbarBrand, NavbarItem, NavbarContent, User, NavbarMenuToggle, NavbarMenu, NavbarMenuItem } from "@nextui-org/react";
 
 const Header = () => {
@@ -133,11 +133,12 @@ const Header = () => {
         />
         {user ? (
           <NavbarContent justify="end">
-            <NavbarItem>
+            {/* <NavbarItem>
               <QRCode />
-            </NavbarItem>
+            </NavbarItem> */}
             <NavbarItem className="h-10">
               <User
+                className="cursor-pointer"
                 onClick={() => handleLogOut()}
                 name={`${user.firstName} ${user.lastName}`}
                 description={user.email}
