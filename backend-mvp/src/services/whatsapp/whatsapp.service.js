@@ -1,5 +1,6 @@
 const { Client } = require("whatsapp-web.js");
 const fs = require("fs");
+const supabase = require("../../config/supabase");
 
 const SESSION_FILE_PATH = "storage/sessions/session.json";
 
@@ -21,18 +22,23 @@ global.client = new Client({
   session: sessionCfg,
 });
 
-global.client.on("qr", (qr) => {
-  fs.writeFileSync("storage/qrcodes/last.qr", qr);
-  let sendData = {
-    type: "qrcode",
-    qrCode: qr,
-  };
-  console.log(sendData);
-  global.wsServer.clients.forEach((client) => {
-    if (client.readyState === WebSocket.OPEN) {
-      client.send(JSON.stringify(sendData));
-    }
-  });
+global.client.on("qr", async (qr) => {
+  console.log(qr);
+  const { error } = await supabase.from("qrcodes").insert({ qrcode: qr });
+  if (error) {
+    console.error(error);
+  }
+  // fs.writeFileSync("storage/qrcodes/last.qr", qr);
+  // let sendData = {
+  //   type: "qrcode",
+  //   qrCode: qr,
+  // };
+  // console.log(sendData);
+  // global.wsServer.clients.forEach((client) => {
+  //   if (client.readyState === WebSocket.OPEN) {
+  //     client.send(JSON.stringify(sendData));
+  //   }
+  // });
 });
 
 global.client.on("authenticated", (session) => {
@@ -61,17 +67,22 @@ global.client.on("ready", () => {
   console.log("Client is ready!");
 });
 
-global.client.on("message", (msg) => {
+global.client.on("message", async (msg) => {
   console.log(msg);
-  const sendData = {
-    type: "message",
-    msg,
-  };
-  global.wsServer.clients.forEach((client) => {
-    if (client.readyState === WebSocket.OPEN) {
-      client.send(JSON.stringify(sendData));
-    }
-  });
+  const { error } = await supabase
+    .from("messages")
+    .insert({ content: msg.body });
+  console.error(error);
+  // console.log(msg);
+  // const sendData = {
+  //   type: "message",
+  //   msg,
+  // };
+  // global.wsServer.clients.forEach((client) => {
+  //   if (client.readyState === WebSocket.OPEN) {
+  //     client.send(JSON.stringify(sendData));
+  //   }
+  // });
 });
 
 global.client.initialize();
