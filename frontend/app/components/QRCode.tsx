@@ -65,8 +65,9 @@ const WhatsAppBot = () => {
 
   const setQRCode = async (payload: any) => {
     try {
+      console.log("payload", payload);
       if (payload.eventType === "UPDATE") {
-        console.log(payload.new.qrcode);
+        console.log("QRCode", payload.new.qrcode);
         setQrCode(payload.new.qrcode);
       }
     } catch (err) {

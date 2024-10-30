@@ -16,6 +16,7 @@ export default function Home() {
   const addMessage = useCallback(async (payload: any) => {
     try {
       if (payload.eventType === "INSERT") {
+        console.log(payload.new);
         setMessages([...messages, payload.new]);
       }
     } catch (err) {
