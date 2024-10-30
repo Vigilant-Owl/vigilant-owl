@@ -10,12 +10,14 @@ try {
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
 
+  app.use(express.static("public"));
+
   const router = require("./routes");
 
   app.use("/api", router);
 
   app.get("/check", (req, res) => {
-    res.send(new Buffer("Server is running!"));
+    res.send(Buffer.from("Server is running!"));
   });
 
   app.get("/", (req, res) => {
