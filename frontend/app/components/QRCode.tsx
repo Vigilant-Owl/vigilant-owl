@@ -50,11 +50,12 @@ const WhatsAppBot = () => {
     try {
       // const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_API}/whatsapp/getqr`);
       // const { qrcode } = await response.json();
-      const { data }: { data: any } = await supabase.from("qrcodes").select("qrcode").order("created_at", { ascending: true });
+      const { data }: { data: any } = await supabase.from("qrcodes").select("qrcode").order("created_at", { ascending: false }).limit(1);
       if (data === null && data.length === 0) {
         return;
       }
       const [currentQrCode] = data;
+      console.log(currentQrCode.qrcode);
       setQrCode(currentQrCode.qrcode);
     } catch (err) {
       console.error(err);
