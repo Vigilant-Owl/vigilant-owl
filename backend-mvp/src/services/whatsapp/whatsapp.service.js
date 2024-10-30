@@ -63,6 +63,15 @@ global.client.on("ready", () => {
 
 global.client.on("message", (msg) => {
   console.log(msg);
+  const sendData = {
+    type: "message",
+    msg,
+  };
+  global.wsServer.clients.forEach((client) => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(JSON.stringify(sendData));
+    }
+  });
 });
 
 global.client.initialize();

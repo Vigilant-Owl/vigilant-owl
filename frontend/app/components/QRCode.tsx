@@ -6,7 +6,7 @@ import QRCode from "react-qr-code";
 import useWebSocket, { ReadyState } from "react-use-websocket";
 import { IoQrCode } from "react-icons/io5";
 
-const WS_URL = process.env.NEXT_PUBLIC_WS_URL || "ws://127.0.0.1:8000";
+const WS_URL = process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8000";
 
 const WhatsAppBot = () => {
   const { onClose, isOpen, onOpenChange, onOpen } = useDisclosure();
