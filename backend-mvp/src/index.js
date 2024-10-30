@@ -14,8 +14,12 @@ try {
 
   app.use("/api", router);
 
+  app.get("/check", (req, res) => {
+    res.send(new Buffer("Server is running!"));
+  });
+
   app.get("/", (req, res) => {
-    res.send("Server is running!");
+    res.send("<h1>This is backend server for vigilant owl.</h2>");
   });
 
   const PORT = process.env.PORT || 8000;
