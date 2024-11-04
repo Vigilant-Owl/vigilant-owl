@@ -60,11 +60,30 @@ export default function Home() {
     <div className="items-center justify-items-center font-[roboto]">
       <main className="flex-col flex gap-2 py-4">
         <QRCode />
-        {messages.map((item: any, index) => (
-          <div key={index}>
-            {item?.content}
-          </div>
-        ))}
+        <table>
+          <thead>
+            <tr>
+              <th>Content</th>
+              <th>Chat ID</th>
+              <th>Number</th>
+            </tr>
+          </thead>
+          <tbody>
+            {messages.map((item: any, index) => (
+              <tr key={index}>
+                <td>
+                  {item?.content}
+                </td>
+                <td>
+                  {item?.chat_id}
+                </td>
+                <td>
+                  {item?.sender_number}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </main>
     </div>
   );

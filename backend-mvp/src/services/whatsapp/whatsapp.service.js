@@ -1,13 +1,9 @@
-const { Client } = require("whatsapp-web.js");
+const { Client, LocalAuth } = require("whatsapp-web.js");
 const fs = require("fs");
 const supabase = require("../../config/supabase");
+const { consentMessage } = require("../../constants/messages");
 
 const SESSION_FILE_PATH = "storage/sessions/session.json";
-
-let sessionCfg;
-if (fs.existsSync(SESSION_FILE_PATH)) {
-  sessionCfg = require(SESSION_FILE_PATH);
-}
 
 global.client = new Client({
   puppeteer: {
@@ -19,7 +15,9 @@ global.client = new Client({
       "--disable-extensions",
     ],
   },
-  session: sessionCfg,
+  authStrategy: new LocalAuth({
+    dataPath: SESSION_FILE_PATH,
+  }),
 });
 
 global.client.on("qr", async (qr) => {
@@ -31,38 +29,14 @@ global.client.on("qr", async (qr) => {
   if (error) {
     console.error(error);
   }
-  // fs.writeFileSync("storage/qrcodes/last.qr", qr);
-  // let sendData = {
-  //   type: "qrcode",
-  //   qrCode: qr,
-  // };
-  // console.log(sendData);
-  // global.wsServer.clients.forEach((client) => {
-  //   if (client.readyState === WebSocket.OPEN) {
-  //     client.send(JSON.stringify(sendData));
-  //   }
-  // });
 });
 
 global.client.on("authenticated", (session) => {
   console.log("AUTH!");
-  sessionCfg = session;
-
-  fs.writeFile(SESSION_FILE_PATH, JSON.stringify(session), function (err) {
-    if (err) {
-      console.error(err);
-    }
-    authed = true;
-  });
-
-  try {
-    fs.unlinkSync("storage/qrcodes/last.qr");
-  } catch (err) {}
 });
 
 global.client.on("auth_failure", () => {
   console.log("AUTH Failed !");
-  sessionCfg = "";
   process.exit();
 });
 
@@ -70,12 +44,30 @@ global.client.on("ready", () => {
   console.log("Client is ready!");
 });
 
-global.client.on("message", async (msg) => {
+global.client.on("message_create", async (msg) => {
   console.log(msg);
-  const { error } = await supabase
-    .from("messages")
-    .insert({ content: msg.body });
-  console.error(error);
+  const sender = msg.from;
+  const senderNumber = sender.split("@")[0];
+  const isGroup = msg.from.includes("@g.us");
+
+  const authorNumber = msg.author?.split("@")[0];
+
+  console.log({
+    sender,
+    senderNumber,
+    isGroup,
+    authorNumber,
+    messageContent: msg.body,
+  });
+
+  const { error } = await supabase.from("messages").insert({
+    content: msg.body,
+    sender_number: isGroup ? authorNumber : senderNumber,
+    is_group: isGroup,
+    chat_id: sender,
+  });
+
+  if (error) console.error(error);
   // console.log(msg);
   // const sendData = {
   //   type: "message",
@@ -86,6 +78,41 @@ global.client.on("message", async (msg) => {
   //     client.send(JSON.stringify(sendData));
   //   }
   // });
+});
+
+global.client.on("remote_session_saved", () => {
+  console.log("Session saved");
+  // Do Stuff...
+});
+
+global.client.on("group_join", async (notification) => {
+  console.log("Group join notification:", notification);
+
+  // Get the group invite info
+  const groupId = notification.chatId;
+  const inviter = notification.author;
+
+  // Accept the invite automatically
+  console.log(groupId, inviter);
+  try {
+    const group = await global.client.acceptInvite(groupId);
+    console.log("Successfully joined group:", group);
+
+    // You can send a message to the group after joining
+    await global.client.sendMessage(groupId, consentMessage);
+  } catch (error) {
+    console.error("Error accepting group invite:", error);
+  }
+});
+
+global.client.on("message_reaction", async (reaction) => {
+  try {
+    console.log("reaction", reaction);
+    const msgId = reaction.msgId;
+    
+  } catch (error) {
+    console.error("Error handling reaction:", error);
+  }
 });
 
 global.client.initialize();
