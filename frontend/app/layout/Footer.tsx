@@ -11,9 +11,6 @@ const Footer = () => {
           <Link href="/terms-of-service" className="hover:text-opacity-100">
             Terms of Service
           </Link>
-          <Link href="/security" className="hover:text-opacity-100">
-            Security
-          </Link>
         </div>
         <span>
           &copy; 2024 Vigilant Owl · All rights reserved.

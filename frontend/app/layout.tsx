@@ -19,7 +19,7 @@ export default function RootLayout({
       <body className="dark" >
         <Provider>
           <Navbar />
-          <div className="flex-grow">
+          <div className="flex-grow max-w-[1120px]">
             {children}
           </div>
           <Footer />
