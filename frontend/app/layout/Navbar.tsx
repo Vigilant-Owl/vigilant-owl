@@ -19,16 +19,10 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const menuItems = [
-    "Profile",
-    "Dashboard",
-    "Activity",
-    "Analytics",
-    "System",
-    "Deployments",
-    "My Settings",
-    "Team Settings",
-    "Help & Feedback",
-    "Log Out",
+    "Overview",
+    "Reports",
+    "Settings",
+    "Help"
   ];
 
   const fetchUserProfile = async (userId: string) => {
@@ -119,7 +113,7 @@ const Header = () => {
 
       <NavbarContent className="hidden sm:flex gap-4 w-full" justify="center">
         <NavbarBrand>
-          <Link href="/" className={`text-xl ${roboto.className}`}>
+          <Link href="/" className={`text-2xl ${roboto.className}`}>
             &#129417;
             Vigilant Owl
           </Link>
@@ -150,7 +144,7 @@ const Header = () => {
           </NavbarContent>
         ) : (
           <NavbarContent justify="end">
-            <NavbarItem className="hidden lg:flex">
+            <NavbarItem>
               <Login />
             </NavbarItem>
             <NavbarItem>

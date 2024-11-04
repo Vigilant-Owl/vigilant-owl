@@ -1,6 +1,8 @@
+import Link from "next/link";
+
 const PrivacyPolicy = () => {
   return (
-    <div className="space-y-4 px-20 pb-52">
+    <div className="space-y-4">
       <h1 className="text-2xl font-bold text-white">Terms of Service</h1>
 
       <section className="space-y-2">
@@ -108,10 +110,10 @@ const PrivacyPolicy = () => {
       <section className="space-y-2">
         <h2 className="text-xl font-semibold text-gray-100">10. Contact Information</h2>
         <p className="text-gray-300 text-base">
-          For questions about these Terms of Service or our privacy practices, please contact us at marco@vigilant-owl.org
+          For questions about these Terms of Service or our privacy practices, please contact us at <Link className="underline text-blue-400 hover:text-blue-600 transition-all" href=" mailto:marco@vigilant-owl.org">marco@vigilant-owl.org</Link>
         </p>
       </section>
-    </div>
+    </div >
   );
 }
 

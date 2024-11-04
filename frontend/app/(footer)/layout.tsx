@@ -6,7 +6,7 @@ export default function Layout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className={`${roboto.className} text-2xl py-6`}>
+    <div className={`${roboto.className}`}>
       {children}
     </div>
   )

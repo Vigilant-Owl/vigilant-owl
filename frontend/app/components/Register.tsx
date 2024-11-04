@@ -2,7 +2,7 @@
 
 import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure } from "@nextui-org/react"
 import { useState } from "react";
-import { IoMdEye, IoMdEyeOff } from "react-icons/io";
+import { IoMdEye, IoMdEyeOff, IoMdPersonAdd } from "react-icons/io";
 import { toast } from "sonner";
 import Joi from 'joi';
 import { RegisterData, ResponseData } from "../types";
@@ -91,7 +91,12 @@ const Register = () => {
 
   return (
     <>
-      <Button onClick={() => onOpen()} color="secondary">Register</Button>
+      <Button onClick={() => onOpen()} color="secondary" className="hidden md:flex">
+        Register
+      </Button>
+      <Button onClick={() => onOpen()} color="secondary" isIconOnly className="flex md:hidden" radius="full">
+        <IoMdPersonAdd className="text-2xl pointer-events-none" />
+      </Button>
       <Modal onClose={() => !loading && onClose()} isOpen={isOpen} onOpenChange={onOpenChange} className="dark-modal">
         <ModalContent>
           {(onClose) => (

@@ -2,7 +2,7 @@
 
 import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure } from "@nextui-org/react"
 import { useState } from "react";
-import { IoMdEye, IoMdEyeOff } from "react-icons/io";
+import { IoMdEye, IoMdEyeOff, IoMdLogIn } from "react-icons/io";
 import { toast } from "sonner";
 import Joi from 'joi';
 import { apiLoginUser } from "../apis/auth";
@@ -72,7 +72,13 @@ const Login = () => {
   }
   return (
     <>
-      <Button onClick={() => onOpen()} color="primary">Login</Button>
+      <Button onClick={() => onOpen()} color="primary" className="hidden md:flex">
+        Login
+      </Button>
+      <Button onClick={() => onOpen()} color="primary" isIconOnly className="flex md:hidden" radius="full">
+        <IoMdLogIn className="text-2xl pointer-events-none" />
+      </Button>
+
       <Modal onClose={onClose} isOpen={isOpen} onOpenChange={onOpenChange} className="dark-modal">
         <ModalContent>
           {(onClose) => (

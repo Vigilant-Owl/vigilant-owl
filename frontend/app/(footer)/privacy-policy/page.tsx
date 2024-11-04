@@ -1,6 +1,8 @@
+import Link from "next/link";
+
 const PrivacyPolicy = () => {
   return (
-    <div className="space-y-4 px-20 pb-52">
+    <div className="space-y-4">
       <h1 className="text-2xl font-bold text-white">Privacy Policy</h1>
 
       <section className="space-y-2">
@@ -59,7 +61,7 @@ const PrivacyPolicy = () => {
       <section className="space-y-2">
         <h2 className="text-xl font-semibold text-gray-100">5. Data Retention</h2>
         <p className="text-gray-300 text-base">
-          We will retain your email address and usage data as long as necessary to fulfill the purposes outlined in this policy or as required by law. You may request deletion of your data by contacting us at marco@vigilant-owl.org.
+          We will retain your email address and usage data as long as necessary to fulfill the purposes outlined in this policy or as required by law. You may request deletion of your data by contacting us at <Link className="underline text-blue-400 hover:text-blue-600 transition-all" href="mailto:marco@vigilant-owl.org">marco@vigilant-owl.org</Link>.
         </p>
       </section>
 
@@ -88,7 +90,7 @@ const PrivacyPolicy = () => {
       <section className="space-y-2">
         <h2 className="text-xl font-semibold text-gray-100">8. Contact Us</h2>
         <p className="text-gray-300 text-base">
-          For questions about this privacy policy or requests regarding your data, please contact us at marco@vigilant-owl.org
+          For questions about this privacy policy or requests regarding your data, please contact us at <Link className="underline text-blue-400 hover:text-blue-600 transition-all" href="mailto:marco@vigilant-owl.org">marco@vigilant-owl.org</Link>
         </p>
       </section>
     </div>
