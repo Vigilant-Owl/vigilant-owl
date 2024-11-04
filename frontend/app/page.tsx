@@ -4,6 +4,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { createClient } from "./utils/supabase/client";
 import QRCode from "@/components/QRCode";
+import { formatPhoneNumber } from "./utils/formatPhoneNumber";
 // import useWebSocket from "react-use-websocket";
 
 // const WS_URL = process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8000";
@@ -23,6 +24,22 @@ export default function Home() {
       console.error(err);
     }
   }, [messages]);
+
+  const handleGetInitialData = async () => {
+    const { data, error } = await supabase.from("messages").select("*");
+    if (error) {
+      console.error(error);
+    }
+
+    console.log(data);
+    if (data) {
+      setMessages(data as any[]);
+    }
+  }
+
+  useEffect(() => {
+    handleGetInitialData();
+  }, [])
 
   useEffect(() => {
     const channel = supabase.channel("messages").on("postgres_changes", { event: "INSERT", schema: "public", table: "messages" }, addMessage).subscribe();
@@ -78,7 +95,7 @@ export default function Home() {
                   {item?.chat_id}
                 </td>
                 <td>
-                  {item?.sender_number}
+                  {formatPhoneNumber("+" + item?.sender_number)}
                 </td>
               </tr>
             ))}
