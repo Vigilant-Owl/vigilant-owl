@@ -28,4 +28,25 @@ For more information about how Vigilant Owl works, visit https://vigilant-owl.or
 
 Thank you for helping create a safer digital environment! 🦉
 `,
+  activeMessage: `
+🦉 Vigilant Owl is now active in this group. I'm here to help monitor the overall safety and tone of our conversations.
+
+Remember, I'm not reading individual messages, but ensuring our group remains a positive and safe space for everyone.
+
+If you have any questions or concerns about my role, feel free to reach out to your group admin. Let's keep our digital interactions respectful and supportive!
+`,
+  waitingMessage: `
+⏳ Vigilant Owl is waiting for your consent to start monitoring this group. Please react to the consent message with:
+• 👍 if you agree
+• 👎 if you don't agree
+
+Your participation is important in creating a safe digital space. Once everyone has responded, I'll either start monitoring or exit the group based on the consensus. Thank you for your cooperation!
+`,
+  stopMessage: `
+🚫 Vigilant Owl has been deactivated in this group. There will be no action here.
+
+If you wish to reactivate me or have questions about digital safety, please contact your group admin or visit our website at https://vigilant-owl.org/.
+
+Thank you for your efforts in maintaining a safe and respectful online community. Stay vigilant and supportive to one another!
+`,
 };

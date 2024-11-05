@@ -31,7 +31,7 @@ const Install = () => {
       const response: ResponseData = await apiInstallBot(data);
 
       if (response.status === "success") {
-        return toast.success(response.message);
+        toast.success(response.message);
       }
       onClose();
     } catch (err: any) {
@@ -44,8 +44,8 @@ const Install = () => {
 
   return (
     <>
-      <Button onClick={() => onOpen()} color="success" variant="shadow" className="hidden md:flex">
-        Install Vigilant Owl
+      <Button onClick={() => onOpen()} color="success" variant="shadow">
+        Install Service
       </Button>
 
       <Modal onClose={onClose} isOpen={isOpen} onOpenChange={onOpenChange} className="dark-modal">

@@ -2,8 +2,8 @@ import Link from "next/link";
 
 const Footer = () => {
   return (
-    <footer className="w-full border-t border-gray-500 max-w-[1120px] text-sm px-[65px]">
-      <div className="flex justify-between flex-row px-6 py-5 text-base">
+    <footer className="w-full border-t border-gray-500 max-w-[1120px] text-sm px-[60px]">
+      <div className="flex flex-wrap justify-center md:justify-between flex-row px-6 py-5 text-base gap-4">
         <div className="flex flex-row gap-4">
           <Link href="/privacy-policy" className="hover:text-blue-500 transition-all">
             Privacy Policy

@@ -11,7 +11,9 @@ import { useCallback, useEffect, useState } from "react";
 import { UserData } from "@/types";
 import { toast } from "sonner";
 // import QRCode from "@/components/QRCode";
-import { Navbar, NavbarBrand, NavbarItem, NavbarContent, User, NavbarMenuToggle, NavbarMenu, NavbarMenuItem } from "@nextui-org/react";
+import { Navbar, NavbarBrand, NavbarItem, NavbarContent, User, NavbarMenuToggle, NavbarMenu, NavbarMenuItem, Dropdown, DropdownTrigger, DropdownItem, DropdownMenu } from "@nextui-org/react";
+import Image from "next/image";
+import logoImage from "@/assets/logo.webp";
 
 const Header = () => {
   const supabase = createClient();
@@ -19,10 +21,22 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const menuItems = [
-    "Overview",
-    "Reports",
-    "Settings",
-    "Help"
+    {
+      name: "Overview",
+      route: "/overview"
+    },
+    {
+      name: "Reports",
+      route: "/reports"
+    },
+    {
+      name: "Settings",
+      route: "/settings"
+    },
+    {
+      name: "Help",
+      route: "/help"
+    },
   ];
 
   const fetchUserProfile = async (userId: string) => {
@@ -104,8 +118,8 @@ const Header = () => {
 
       <NavbarContent className="sm:hidden pr-3" justify="center">
         <NavbarBrand>
-          <Link href="/" className={`text-xl ${roboto.className}`}>
-            &#129417;
+          <Link href="/" className={`text-lg ${roboto.className} flex flex-row gap-2 items-center`}>
+            <Image src={logoImage} width={36} height={36} alt="&#129417; Vigilant Owl" className="rounded-full" />
             Vigilant Owl
           </Link>
         </NavbarBrand>
@@ -113,9 +127,9 @@ const Header = () => {
 
       <NavbarContent className="hidden sm:flex gap-4 w-full" justify="center">
         <NavbarBrand>
-          <Link href="/" className={`text-2xl ${roboto.className}`}>
-            &#129417;
-            Vigilant Owl
+          <Link href="/" className={`text-xl ${roboto.className} flex flex-row gap-2 items-center`}>
+            <Image src={logoImage} width={36} height={36} alt="&#129417; Vigilant Owl" className="rounded-full" />
+            <div className="text-lg md:text-xl">Vigilant Owl</div>
           </Link>
         </NavbarBrand>
         <NavbarMenus
@@ -131,15 +145,28 @@ const Header = () => {
               <QRCode />
             </NavbarItem> */}
             <NavbarItem className="h-10">
-              <User
-                className="cursor-pointer"
-                onClick={() => handleLogOut()}
-                name={`${user.firstName} ${user.lastName}`}
-                description={user.email}
-                avatarProps={{
-                  src: `https://ui-avatars.com/api/?name=${user.firstName}+${user.lastName}&size=128&background=007bff&color=fff`
-                }}
-              />
+              <Dropdown>
+                <DropdownTrigger>
+                  <User
+                    className="cursor-pointer"
+                    name={`${user.firstName} ${user.lastName}`}
+                    description={user.email}
+                    avatarProps={{
+                      src: `https://ui-avatars.com/api/?name=${user.firstName}+${user.lastName}&size=128&background=007bff&color=fff`
+                    }}
+                  />
+                </DropdownTrigger>
+                <DropdownMenu aria-label="user">
+                  <DropdownItem key="profile">
+                    <Link href="/profile">
+                      Profile
+                    </Link>
+                  </DropdownItem>
+                  <DropdownItem key="sign-out"
+                    onClick={() => handleLogOut()}
+                  >Sign Out</DropdownItem>
+                </DropdownMenu>
+              </Dropdown>
             </NavbarItem>
           </NavbarContent>
         ) : (
@@ -161,14 +188,14 @@ const Header = () => {
               color={
                 index === 2 ? "warning" : index === menuItems.length - 1 ? "danger" : "foreground"
               }
-              href="#"
+              href={item.route}
             >
-              {item}
+              {item.name}
             </Link>
           </NavbarMenuItem>
         ))}
       </NavbarMenu>
-    </Navbar>
+    </Navbar >
   )
 }
 

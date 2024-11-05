@@ -19,7 +19,7 @@ export default function RootLayout({
       <body className="dark" >
         <Provider>
           <Navbar />
-          <div className="flex-grow max-w-[1120px] py-12 pb-52 px-6 sm:px-10 md:px-20">
+          <div className="flex-grow max-w-[1120px] py-12 px-6 sm:px-10 md:px-20">
             {children}
           </div>
           <Footer />

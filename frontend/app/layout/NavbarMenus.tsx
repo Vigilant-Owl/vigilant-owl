@@ -1,19 +1,28 @@
 import { NavbarContent, NavbarItem } from "@nextui-org/react";
+import Link from "next/link";
 
 const Navbar = ({ ...props }) => {
   return (
     <NavbarContent className="hidden sm:flex gap-4 text-xl font-[lato]" justify="center" {...props}>
       <NavbarItem>
-        Overview
+        <Link href="/overview">
+          Overview
+        </Link>
       </NavbarItem>
       <NavbarItem>
-        Reports
+        <Link href="/reports">
+          Reports
+        </Link>
       </NavbarItem>
       <NavbarItem>
-        Settings
+        <Link href="/settings">
+          Settings
+        </Link>
       </NavbarItem>
       <NavbarItem>
-        Help
+        <Link href="/help">
+          Help
+        </Link>
       </NavbarItem>
     </NavbarContent>
   )
