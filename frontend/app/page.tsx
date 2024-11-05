@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { createClient } from "./utils/supabase/client";
 import QRCode from "@/components/QRCode";
 import { formatPhoneNumber } from "./utils/formatPhoneNumber";
+import Install from "./components/Install";
 // import useWebSocket from "react-use-websocket";
 
 // const WS_URL = process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8000";
@@ -39,7 +40,7 @@ export default function Home() {
 
   useEffect(() => {
     handleGetInitialData();
-  }, [])
+  }, []);
 
   useEffect(() => {
     const channel = supabase.channel("messages").on("postgres_changes", { event: "INSERT", schema: "public", table: "messages" }, addMessage).subscribe();
@@ -75,7 +76,8 @@ export default function Home() {
 
   return (
     <div className="items-center justify-items-center font-[roboto]">
-      <main className="flex-col flex gap-2 py-4">
+      <main className="flex-col flex gap-4 py-4">
+        <Install />
         <QRCode />
         <table>
           <thead>

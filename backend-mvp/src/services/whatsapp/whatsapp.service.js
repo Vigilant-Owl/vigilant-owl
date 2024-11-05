@@ -95,8 +95,8 @@ global.client.on("group_join", async (notification) => {
   // Accept the invite automatically
   console.log(groupId, inviter);
   try {
-    const group = await global.client.acceptInvite(groupId);
-    console.log("Successfully joined group:", group);
+    // const group = await global.client.acceptInvite(groupId);
+    // console.log("Successfully joined group:", group);
 
     // You can send a message to the group after joining
     await global.client.sendMessage(groupId, consentMessage);
@@ -109,7 +109,9 @@ global.client.on("message_reaction", async (reaction) => {
   try {
     console.log("reaction", reaction);
     const msgId = reaction.msgId;
-    
+    if(reaction.reaction === "👍" && reaction.reaction === "") {
+      
+    }
   } catch (error) {
     console.error("Error handling reaction:", error);
   }
