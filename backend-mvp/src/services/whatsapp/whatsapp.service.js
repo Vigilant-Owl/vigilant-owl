@@ -5,6 +5,8 @@ const {
   consentMessage,
   stopMessage,
   activeMessage,
+  waitingMessage,
+  unrecognizedResponseMessage,
 } = require("../../constants/messages");
 
 const SESSION_FILE_PATH = "storage/sessions/session.json";
@@ -74,14 +76,18 @@ global.client.on("message_create", async (msg) => {
       console.log(data);
       if (error) throw error;
       console.log("Consent Message", data);
-      if (data && data.is_active) {
-        const { error } = await supabase.from("messages").insert({
-          content: msg.body,
-          sender_number: isGroup ? authorNumber : senderNumber,
-          is_group: isGroup,
-          chat_id: sender,
-        });
-        if (error) throw error;
+      if (data) {
+        if (data.is_active) {
+          const { error } = await supabase.from("messages").insert({
+            content: msg.body,
+            sender_number: isGroup ? authorNumber : senderNumber,
+            is_group: isGroup,
+            chat_id: sender,
+          });
+          if (error) throw error;
+        } else if (data.is_active === null) {
+          global.client.sendMessage(sender, waitingMessage);
+        }
       }
     }
 
@@ -148,41 +154,73 @@ global.client.on("message_reaction", async (reaction) => {
       .select("*")
       .eq("message_id", msgId)
       .single();
-    console.log(data);
-    console.log(data.thumb_ups);
     if (error) {
       throw error;
     }
     if (data) {
-      console.log(reaction.reaction, "👍");
-      if (reaction.reaction === "👍") {
-        const isActive = data.thumb_ups + 1 == data.member_count;
-        if (isActive) {
-          const message = await global.client.sendMessage(
-            data.group_id,
-            activeMessage
-          );
-          console.log("Active Message", message);
+      const newReaction = {
+        message_id: msgId,
+        reaction: reaction.reaction,
+        sender: reaction.senderId,
+      };
+      const { data: reactionData } = await supabase
+        .from("reactions")
+        .select("*")
+        .eq("message_id", msgId)
+        .eq("sender", reaction.senderId);
+
+      let previousReact = "";
+      if (reactionData && reactionData.length) {
+        previousReact = reactionData[0].reaction;
+        console.log(previousReact);
+        const { error } = await supabase
+          .from("reactions")
+          .update({
+            reaction: reaction.reaction,
+          })
+          .eq("message_id", msgId)
+          .eq("sender", reaction.senderId);
+        if (error) {
+          throw error;
         }
-        const { error } = await supabase
-          .from("consent-messages")
-          .update({ thumb_ups: data.thumb_ups + 1, is_active: isActive })
-          .eq("message_id", msgId);
+      } else {
+        const { error } = await supabase.from("reactions").insert(newReaction);
+        if (error) {
+          throw error;
+        }
       }
-      if (reaction.reaction === "👎") {
-        const { error } = await supabase
+
+      if (reaction.reaction === "👍") {
+        const { data: reactions, count } = await supabase
+          .from("reactions")
+          .select("*", { count: "exact" })
+          .eq("message_id", msgId)
+          .eq("reaction", "👍");
+        console.log(data, count);
+        if (count === data.member_count) {
+          await global.client.sendMessage(data.group_id, activeMessage);
+          await supabase
+            .from("consent-messages")
+            .update({
+              is_active: true,
+            })
+            .eq("message_id", msgId);
+        }
+      } else if (reaction.reaction === "👎") {
+        await global.client.sendMessage(data.group_id, stopMessage);
+        await supabase
           .from("consent-messages")
-          .update({ thumb_downs: data.thumb_downs + 1, is_active: false })
+          .update({
+            is_active: false,
+          })
           .eq("message_id", msgId);
-        const message = await global.client.sendMessage(
-          data.group_id,
-          stopMessage
-        );
-        console.log("Stop Mornitoring", message);
+      } else if (reaction.reaction !== "") {
+        global.client.sendMessage(data.group_id, unrecognizedResponseMessage);
       }
     }
   } catch (error) {
-    console.error("Error handling reaction:", error);
+    console.error(error);
+    // console.error("Error handling reaction:", error);
   }
 });
 
