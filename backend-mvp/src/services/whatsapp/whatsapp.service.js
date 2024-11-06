@@ -154,9 +154,9 @@ global.client.on("group_join", async (notification) => {
         group_id: groupId,
         member_count: groupMemberCounts - 1,
       });
-    }
-    if (error) {
-      throw error;
+      if (error) {
+        throw error;
+      }
     }
   } catch (error) {
     console.error("Error accepting group invite:", error);
