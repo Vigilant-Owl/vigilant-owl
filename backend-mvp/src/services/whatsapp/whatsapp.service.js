@@ -129,18 +129,84 @@ global.client.on("group_join", async (notification) => {
 
     // You can send a message to the group after joining
     const message = await global.client.sendMessage(groupId, consentMessage);
-    console.log(message);
 
-    const { data, error } = await supabase.from("consent-messages").insert({
-      message_id: message.id.id,
-      group_id: groupId,
-      member_count: groupMemberCounts - 1,
-    });
+    const { data } = await supabase
+      .from("consent-messages")
+      .select("*")
+      .eq("group_id", groupId);
+    if (data && data.length) {
+      const { error } = await supabase
+        .from("consent-messages")
+        .update({
+          message_id: message.id.id,
+          member_count: groupMemberCounts - 1,
+          is_active: null,
+        })
+        .eq("group_id", groupId);
+      console.log(error);
+      await supabase
+        .from("reactions")
+        .delete()
+        .eq("message_id", data[0].message_id);
+    } else {
+      const { error } = await supabase.from("consent-messages").insert({
+        message_id: message.id.id,
+        group_id: groupId,
+        member_count: groupMemberCounts - 1,
+      });
+    }
     if (error) {
       throw error;
     }
   } catch (error) {
     console.error("Error accepting group invite:", error);
+  }
+});
+
+global.client.on("group_leave", async (notification) => {
+  console.log(notification);
+  try {
+    const groupId = notification.chatId;
+    const sender = notification.author;
+    const chat = await notification.getChat();
+    const groupMemberCounts = chat.participants.length;
+
+    let updatedData = {
+      member_count: groupMemberCounts - 1,
+    };
+    if (groupMemberCounts - 1 === 0) {
+      updatedData = { ...updatedData, is_active: false };
+    }
+    await supabase
+      .from("consent-messages")
+      .update(updatedData)
+      .eq("group_id", groupId);
+
+    const { data } = await supabase
+      .from("consent-messages")
+      .select("*")
+      .eq("group_id", groupId)
+      .single();
+
+    await supabase.from("reactions").delete().eq("sender", sender);
+    if (data.is_active === false) {
+      const { data: reactions, count } = await supabase
+        .from("reactions")
+        .select("*", { count: "exact" })
+        .eq("message_id", msgId)
+        .eq("reaction", "👍");
+      if (count === data.member_count && data.member_count !== 0) {
+        await global.client.sendMessage(data.group_id, activeMessage);
+        await supabase
+          .from("consent-messages")
+          .update({
+            is_active: true,
+          })
+          .eq("message_id", msgId);
+      }
+    }
+  } catch (error) {
+    console.log(error);
   }
 });
 
