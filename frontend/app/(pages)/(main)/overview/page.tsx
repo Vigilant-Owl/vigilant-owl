@@ -4,7 +4,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { formatPhoneNumber } from "@/utils/formatPhoneNumber";
-import QRCode from "@/components/QRCode";
+// import QRCode from "@/components/QRCode";
 import Install from "@/components/Install";
 // import useWebSocket from "react-use-websocket";
 
@@ -75,30 +75,31 @@ export default function Home() {
   // }, [lastMessage]);
 
   return (
-    <div className="items-center justify-items-center font-[roboto]">
+    <div className="items-center justify-items-center font-[roboto] w-fit">
       <main className="flex-col flex gap-4 py-4">
         <Install />
-        <QRCode />
+        {/* <QRCode /> */}
         <table>
           <thead>
             <tr>
-              <th>Content</th>
-              <th>Chat ID</th>
               <th>Number</th>
+              <th>Content</th>
+              {/* <th>Chat ID</th> */}
             </tr>
           </thead>
           <tbody>
             {messages.map((item: any, index) => (
               <tr key={index}>
                 <td>
-                  {item?.content}
-                </td>
-                <td>
-                  {item?.chat_id}
-                </td>
-                <td>
                   {formatPhoneNumber("+" + item?.sender_number)}
                 </td>
+                <td>
+                  {item?.content}
+                </td>
+                {/* <td>
+                  {item?.chat_id}
+                </td> */}
+
               </tr>
             ))}
           </tbody>

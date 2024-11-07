@@ -12,6 +12,8 @@ try {
 
   app.use(express.static("public"));
 
+  require("./services");
+
   const router = require("./routes");
 
   app.use("/api", router);
@@ -29,8 +31,6 @@ try {
   const server = app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
   });
-
-  require("./services");
 
   server.on("upgrade", (request, socket, head) => {
     global.wsServer.handleUpgrade(request, socket, head, (ws) => {
