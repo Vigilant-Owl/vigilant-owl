@@ -1,13 +1,13 @@
 const { Client, LocalAuth } = require("whatsapp-web.js");
 const fs = require("fs");
-const supabase = require("../../config/supabase");
+const supabase = require("../config/supabase");
 const {
   consentMessage,
   stopMessage,
   activeMessage,
   waitingMessage,
   unrecognizedResponseMessage,
-} = require("../../constants/messages");
+} = require("../constants/messages");
 
 const SESSION_FILE_PATH = "storage/sessions/session.json";
 
@@ -55,7 +55,7 @@ global.client.on("message_create", async (msg) => {
     console.log(msg);
     const sender = msg.from;
     const senderNumber = sender.split("@")[0];
-    const isGroup = msg.from.includes("@g.us");
+    const isGroup = sender.includes("@g.us");
 
     const authorNumber = msg.author?.split("@")[0];
 
@@ -71,13 +71,12 @@ global.client.on("message_create", async (msg) => {
       const { data, error } = await supabase
         .from("consent-messages")
         .select("*")
-        .eq("group_id", sender)
-        .single();
+        .eq("group_id", sender);
       console.log(data);
       if (error) throw error;
       console.log("Consent Message", data);
-      if (data) {
-        if (data.is_active) {
+      if (data && data.length) {
+        if (data[0].is_active) {
           const { error } = await supabase.from("messages").insert({
             content: msg.body,
             sender_number: isGroup ? authorNumber : senderNumber,
@@ -85,9 +84,18 @@ global.client.on("message_create", async (msg) => {
             chat_id: sender,
           });
           if (error) throw error;
-        } else if (data.is_active === null) {
+        } else if (data[0].is_active === null) {
           global.client.sendMessage(sender, waitingMessage);
         }
+      } else {
+        const message = await global.client.sendMessage(sender, consentMessage);
+        const chat = await msg.getChat();
+        const groupMemberCounts = chat.participants.length;
+        const { error } = await supabase.from("consent-messages").insert({
+          message_id: message.id.id,
+          group_id: sender,
+          member_count: groupMemberCounts - 1,
+        });
       }
     }
 
@@ -128,13 +136,13 @@ global.client.on("group_join", async (notification) => {
     // console.log("Successfully joined group:", group);
 
     // You can send a message to the group after joining
-    const message = await global.client.sendMessage(groupId, consentMessage);
 
     const { data } = await supabase
       .from("consent-messages")
       .select("*")
       .eq("group_id", groupId);
     if (data && data.length) {
+      const message = await global.client.sendMessage(groupId, consentMessage);
       const { error } = await supabase
         .from("consent-messages")
         .update({
@@ -144,10 +152,12 @@ global.client.on("group_join", async (notification) => {
         })
         .eq("group_id", groupId);
       console.log(error);
-      await supabase
-        .from("reactions")
-        .delete()
-        .eq("message_id", data[0].message_id);
+      if (data[0].message_id) {
+        await supabase
+          .from("reactions")
+          .delete()
+          .eq("message_id", data[0].message_id);
+      }
     } else {
       const { error } = await supabase.from("consent-messages").insert({
         message_id: message.id.id,

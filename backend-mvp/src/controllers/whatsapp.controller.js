@@ -1,4 +1,6 @@
 const fs = require("fs");
+const supabase = require("../config/supabase");
+const { consentMessage } = require("../constants/messages");
 
 module.exports = {
   getQr: (req, res, next) => {
@@ -36,6 +38,17 @@ module.exports = {
       const whatsappId = `${phoneNumber}@c.us`;
       const group = await global.client.createGroup(title, [whatsappId]);
       console.log("Group created successfully:", group);
+      // const message = await global.client.sendMessage(
+      //   group.gid._serialize,
+      //   consentMessage
+      // );
+      const { error } = await supabase.from("consent-messages").insert({
+        // message_id: message.id.id,
+        group_id: group.gid._serialize,
+        // member_count: 1,
+        title: title,
+        phone_number: phoneNumber,
+      });
       return res.status(200).json({
         status: "success",
         message: "Success to install bot",
