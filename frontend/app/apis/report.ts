@@ -10,6 +10,7 @@ export const getReport = async (data: {
   phoneNumber: string;
   startDate: string;
   endDate: string;
+  tableId?: string;
 }) => {
   try {
     const response = await axios.post(`${apiUrl}/`, data);

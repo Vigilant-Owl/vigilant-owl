@@ -1,11 +1,12 @@
 module.exports = {
   getReport: async (req, res) => {
-    const { groupId, phoneNumber, startDate, endDate } = req.body;
+    const { groupId, phoneNumber, startDate, endDate, tableId } = req.body;
     const report = await global.ai.generateReport(
       groupId,
       phoneNumber,
       startDate,
-      endDate
+      endDate,
+      tableId
     );
 
     console.log(report);

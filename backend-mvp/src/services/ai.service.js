@@ -264,10 +264,16 @@ const processAnalysisResults = (analysisResults, startDate, endDate) => {
   }
 };
 
-global.ai.generateReport = async (chatId, childNumber, startDate, endDate) => {
+global.ai.generateReport = async (
+  chatId,
+  childNumber,
+  startDate,
+  endDate,
+  tableId
+) => {
   try {
     const { data: messages, error } = await supabase
-      .from("messages_test")
+      .from(`messages_test_${tableId}`)
       .select("*")
       .eq("chat_id", chatId)
       .eq("sender_number", childNumber);
