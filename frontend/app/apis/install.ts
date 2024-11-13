@@ -5,7 +5,11 @@ const apiBaseUrl =
 
 const apiUrl = `${apiBaseUrl}/whatsapp`;
 
-export const apiInstallBot = async (data: { phoneNumber: string }) => {
+export const apiInstallBot = async (data: {
+  phoneNumber: string;
+  title: string;
+  parentId?: string;
+}) => {
   try {
     const response = await axios.post(`${apiUrl}/install`, data);
     return response.data;

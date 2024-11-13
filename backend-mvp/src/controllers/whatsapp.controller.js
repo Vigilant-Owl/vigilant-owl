@@ -33,8 +33,7 @@ module.exports = {
 
   installBot: async (req, res) => {
     try {
-      const { title, phoneNumber } = req.body;
-      console.log("PhoneNumber", phoneNumber, title);
+      const { title, phoneNumber, parentId } = req.body;
       const whatsappId = `${phoneNumber}@c.us`;
       const group = await global.client.createGroup(title, [whatsappId]);
       console.log("Group created successfully:", group);
@@ -43,11 +42,10 @@ module.exports = {
       //   consentMessage
       // );
       const { error } = await supabase.from("consent-messages").insert({
-        // message_id: message.id.id,
         group_id: group.gid._serialize,
-        // member_count: 1,
         title: title,
         phone_number: phoneNumber,
+        parent_id: parentId,
       });
       return res.status(200).json({
         status: "success",

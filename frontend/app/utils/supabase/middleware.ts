@@ -60,6 +60,15 @@ export async function updateSession(request: NextRequest) {
 
   console.log(user);
 
+  if (
+    !user &&
+    (request.nextUrl.pathname.startsWith("/overview") ||
+      request.nextUrl.pathname.startsWith("/reports"))
+  ) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/";
+    return NextResponse.rewrite(url);
+  }
   // if (
   //   !user &&
   //   !request.nextUrl.pathname.slice(3).startsWith("/login") &&

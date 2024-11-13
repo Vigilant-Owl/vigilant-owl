@@ -273,7 +273,8 @@ global.ai.generateReport = async (
 ) => {
   try {
     const { data: messages, error } = await supabase
-      .from(`messages_test_${tableId}`)
+      // .from(`messages_test_${tableId}`)
+      .from("messages")
       .select("*")
       .eq("chat_id", chatId)
       .eq("sender_number", childNumber);
@@ -282,6 +283,9 @@ global.ai.generateReport = async (
     // .order("created_at", { ascending: true });
 
     if (error) throw error;
+    if (messages.length === 0) {
+      return "no data";
+    }
 
     const analysisResults = await Promise.all(
       messages.map(async (msg) => ({

@@ -3,37 +3,45 @@
 
 import { apiInstallBot } from "@/apis/install";
 import { ResponseData } from "@/types";
+import { createClient } from "@/utils/supabase/client";
 import { Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure, Input } from "@nextui-org/react";
 import { useState } from "react";
 import { toast } from "sonner";
 
 const Install = () => {
+  const supabase = createClient();
   const { onClose, isOpen, onOpenChange, onOpen } = useDisclosure();
   const [loading, setLoading] = useState(false);
 
   const handleInstall = async (form: HTMLFormElement) => {
     try {
-      const formData = new FormData(form);
+      const { data: res } = await supabase.auth.getSession();
+      if (res.session) {
+        const formData = new FormData(form);
 
-      const data = {
-        phoneNumber: formData.get("phoneNumber") as string,
-        title: formData.get("title") as string,
+        const data = {
+          phoneNumber: formData.get("phoneNumber") as string,
+          title: formData.get("title") as string,
+          parentId: res.session?.user.id
+        }
+
+        if (!data.phoneNumber) {
+          return toast.warning("Please input your phone number.");
+        }
+
+        setLoading(true);
+
+        console.log(data);
+
+        const response: ResponseData = await apiInstallBot(data);
+
+        if (response.status === "success") {
+          toast.success(response.message);
+        }
+        onClose();
+      } else {
+        toast.error("You didn't sign in, please sign in first.");
       }
-
-      if (!data.phoneNumber) {
-        return toast.warning("Please input your phone number.");
-      }
-
-      setLoading(true);
-
-      console.log(data);
-
-      const response: ResponseData = await apiInstallBot(data);
-
-      if (response.status === "success") {
-        toast.success(response.message);
-      }
-      onClose();
     } catch (err: any) {
       console.error(err);
       toast.error(err?.message);

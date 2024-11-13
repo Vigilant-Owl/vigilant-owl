@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 import { getReport } from "@/apis/report";
-import { Card, CardBody, CardHeader } from "@nextui-org/react";
+import { Card, CardBody, CardHeader, Spinner } from "@nextui-org/react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import {
   BiMessageDetail,
@@ -18,9 +18,11 @@ import {
   MdOutlineInterests,
   MdOutlinePsychology
 } from "react-icons/md";
-import Test from "@/components/Test";
-import { useEffect, useState } from "react";
+// import Test from "@/components/Test";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
+import { createClient } from "@/utils/supabase/client";
+import Link from "next/link";
 
 const Reports = () => {
   const mockupData = {
@@ -215,21 +217,50 @@ const Reports = () => {
     }
   };
 
+  const supabase = createClient();
   const [data, setData] = useState<any>(mockupData);
   const [loading, setLoading] = useState(false);
+  const [isData, setIsData] = useState(false);
 
-  const handleGetReport = async (table: string, phoneNumber: string) => {
+  const handleGetReport = useCallback(async (payload: any) => {
+    try {
+      if (payload.eventType === "INSERT" || payload.eventType === "UPDATE") {
+        console.log(payload.new);
+        setData(JSON.parse(payload.new.data));
+        setIsData(true);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }, []);
+
+  const handleGetInitialReport = async () => {
     try {
       setLoading(true);
-
-      const response = await getReport({ groupId: "120363345932571412@g.us", phoneNumber, tableId: table, startDate: "2024-11-10", endDate: "2024-11-14" });
-
-      if (response.status === "success") {
-        console.log("Report Data", response.data);
-        setData(response.data);
-        toast.success("Successfully generate the report.");
+      const { data: session, error } = await supabase.auth.getSession();
+      if (error) throw error;
+      if (session.session) {
+        const { data, error } = await supabase.from("reports").select("*").eq("parent_id", session.session.user.id);
+        if (error) throw error;
+        if (data.length && data[0].data) {
+          setData(JSON.parse(data[0].data));
+          setIsData(true);
+        } else {
+          const { data: consentMessages, error } = await supabase.from("consent-messages").select("*").eq("parent_id", session.session.user.id);
+          if (error) throw error;
+          if (consentMessages.length) {
+            const data: any = consentMessages[0];
+            const response = await getReport({ groupId: data?.group_id, phoneNumber: data?.phone_number, startDate: "2024-11-10", endDate: "2024-11-14" });
+            if (response.status === "success") {
+              setData(response.data);
+              setIsData(true);
+            }
+          } else {
+            toast.error("You didn't install the service.");
+          }
+        }
       } else {
-        toast.error(response.message);
+        return toast.error("Please sign in first.");
       }
     } catch (err: any) {
       console.error(err);
@@ -240,8 +271,40 @@ const Reports = () => {
   }
 
   useEffect(() => {
-    handleGetReport("1", "18406880000")
+    handleGetInitialReport();
   }, [])
+
+  useEffect(() => {
+    const channel = supabase.channel("reports").on("postgres_changes", { event: "*", schema: "public", table: "messages" }, handleGetReport).subscribe();
+    return () => {
+      channel.unsubscribe();
+    }
+  }, [handleGetReport, supabase]);
+
+  // const handleGetReport = async (table: string, phoneNumber: string) => {
+  //   try {
+  //     setLoading(true);
+
+  //     const response = await getReport({ groupId: "120363345932571412@g.us", phoneNumber, tableId: table, startDate: "2024-11-10", endDate: "2024-11-14" });
+
+  //     if (response.status === "success") {
+  //       console.log("Report Data", response.data);
+  //       setData(response.data);
+  //       toast.success("Successfully generate the report.");
+  //     } else {
+  //       toast.error(response.message);
+  //     }
+  //   } catch (err: any) {
+  //     console.error(err);
+  //     toast.error(err.message);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // }
+
+  // useEffect(() => {
+  //   handleGetReport("1", "18406880000")
+  // }, [])
 
   const getEmotionIcon = (emotion: any) => {
     const iconProps = { className: "w-6 h-6 text-yellow-500" };
@@ -274,140 +337,146 @@ const Reports = () => {
 
   return (
     <div className="flex flex-col gap-4">
-      <Test onGetReport={handleGetReport} loading={loading} />
-      <div className="w-full p-4 space-y-4 bg-gray-900 min-h-screen rounded-lg">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-white">Analysis Report</h1>
-          <div className="text-gray-400">
-            {data.metadata.timespan.startDate} ~ {data.metadata.timespan.endDate}
+      {/* <Test onGetReport={handleGetReport} loading={loading} /> */}
+      {loading && <Spinner />}
+      {!isData ?
+        <div className="flex flex-col gap-4 text-center">
+          <div>{`You didn't install the service.`}</div>
+          <Link href="/overview" className="text-blue-400 hover:text-blue-600 underline">Go to install page</Link>
+        </div>
+        : <div className="w-full p-4 space-y-4 bg-gray-900 min-h-screen rounded-lg">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="text-2xl font-bold text-white">Analysis Report</h1>
+            <div className="text-gray-400">
+              {data.metadata.timespan.startDate} ~ {data.metadata.timespan.endDate}
+            </div>
           </div>
-        </div>
 
-        {/* Key Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <Card className="bg-gray-800">
-            <CardBody className="flex flex-row items-center space-x-4">
-              <BiMessageDetail className="w-8 h-8 text-blue-500" />
-              <div>
-                <p className="text-gray-400">Total Messages</p>
-                <h3 className="text-2xl font-bold text-white">{data.metadata.totalMessages}</h3>
-              </div>
-            </CardBody>
-          </Card>
-
-          <Card className="bg-gray-800">
-            <CardBody className="flex flex-row items-center space-x-4">
-              <RiEmotionLine className="w-8 h-8 text-green-500" />
-              <div>
-                <p className="text-gray-400">Emotional Intensity</p>
-                <h3 className="text-2xl font-bold text-white">{data.emotionalAnalysis.averageIntensity.toFixed(2)}</h3>
-              </div>
-            </CardBody>
-          </Card>
-
-          <Card className="bg-gray-800">
-            <CardBody className="flex flex-row items-center space-x-4">
-              <MdOutlinePsychology className="w-8 h-8 text-purple-500" />
-              <div>
-                <p className="text-gray-400">Average Stress</p>
-                <h3 className="text-2xl font-bold text-white">{data.psychologicalProfile.averageStress.toFixed(2)}</h3>
-              </div>
-            </CardBody>
-          </Card>
-
-          <Card className="bg-gray-800">
-            <CardBody className="flex flex-row items-center space-x-4">
-              <BiHeart className="w-8 h-8 text-red-500" />
-              <div>
-                <p className="text-gray-400">Positive Messages</p>
-                <h3 className="text-2xl font-bold text-white">{data.sentimentAnalysis.distribution.positive}</h3>
-              </div>
-            </CardBody>
-          </Card>
-        </div>
-
-        {/* Charts Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-          <Card className="bg-gray-800">
-            <CardHeader className="pb-0 pt-6 px-4">
-              <div className="flex items-center space-x-2">
-                <BiTrendingUp className="w-6 h-6 text-blue-500" />
-                <h4 className="text-xl font-bold text-white">Sentiment Trend</h4>
-              </div>
-            </CardHeader>
-            <CardBody>
-              <div className="h-72">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={data.sentimentAnalysis.sentimentTrend}>
-                    <XAxis dataKey="timestamp" hide />
-                    <YAxis />
-                    <Tooltip />
-                    <Line
-                      type="monotone"
-                      dataKey="intensity"
-                      stroke="#3b82f6"
-                      strokeWidth={2}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            </CardBody>
-          </Card>
-
-          <Card className="bg-gray-800">
-            <CardHeader className="pb-0 pt-6 px-4">
-              <div className="flex items-center space-x-2">
-                <BiPulse className="w-6 h-6 text-red-500" />
-                <h4 className="text-xl font-bold text-white">Stress Pattern</h4>
-              </div>
-            </CardHeader>
-            <CardBody>
-              <div className="h-72">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={data.psychologicalProfile.stressPattern}>
-                    <XAxis dataKey="timestamp" hide />
-                    <YAxis />
-                    <Tooltip />
-                    <Line
-                      type="monotone"
-                      dataKey="stress"
-                      stroke="#ef4444"
-                      strokeWidth={2}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            </CardBody>
-          </Card>
-        </div>
-
-        {/* Primary Emotions */}
-        <Card className="bg-gray-800">
-          <CardHeader className="pb-0 pt-6 px-4">
-            <div className="flex items-center space-x-2">
-              <RiEmotionLine className="w-6 h-6 text-yellow-500" />
-              <h4 className="text-xl font-bold text-white">Primary Emotions</h4>
-            </div>
-          </CardHeader>
-          <CardBody>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {emotionsList.map(({ emotion, value }) => (
-                <div
-                  key={emotion}
-                  className="flex items-center space-x-2 bg-gray-700 p-4 rounded-lg"
-                >
-                  {getEmotionIcon(emotion)}
-                  <div>
-                    <p className="text-gray-300 capitalize">{emotion}</p>
-                    <p className="text-lg font-bold text-white">{value}</p>
-                  </div>
+          {/* Key Metrics */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <Card className="bg-gray-800">
+              <CardBody className="flex flex-row items-center space-x-4">
+                <BiMessageDetail className="w-8 h-8 text-blue-500" />
+                <div>
+                  <p className="text-gray-400">Total Messages</p>
+                  <h3 className="text-2xl font-bold text-white">{data.metadata.totalMessages}</h3>
                 </div>
-              ))}
-            </div>
-          </CardBody>
-        </Card>
-      </div>
+              </CardBody>
+            </Card>
+
+            <Card className="bg-gray-800">
+              <CardBody className="flex flex-row items-center space-x-4">
+                <RiEmotionLine className="w-8 h-8 text-green-500" />
+                <div>
+                  <p className="text-gray-400">Emotional Intensity</p>
+                  <h3 className="text-2xl font-bold text-white">{data.emotionalAnalysis.averageIntensity.toFixed(2)}</h3>
+                </div>
+              </CardBody>
+            </Card>
+
+            <Card className="bg-gray-800">
+              <CardBody className="flex flex-row items-center space-x-4">
+                <MdOutlinePsychology className="w-8 h-8 text-purple-500" />
+                <div>
+                  <p className="text-gray-400">Average Stress</p>
+                  <h3 className="text-2xl font-bold text-white">{data.psychologicalProfile.averageStress.toFixed(2)}</h3>
+                </div>
+              </CardBody>
+            </Card>
+
+            <Card className="bg-gray-800">
+              <CardBody className="flex flex-row items-center space-x-4">
+                <BiHeart className="w-8 h-8 text-red-500" />
+                <div>
+                  <p className="text-gray-400">Positive Messages</p>
+                  <h3 className="text-2xl font-bold text-white">{data.sentimentAnalysis.distribution.positive}</h3>
+                </div>
+              </CardBody>
+            </Card>
+          </div>
+
+          {/* Charts Row */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+            <Card className="bg-gray-800">
+              <CardHeader className="pb-0 pt-6 px-4">
+                <div className="flex items-center space-x-2">
+                  <BiTrendingUp className="w-6 h-6 text-blue-500" />
+                  <h4 className="text-xl font-bold text-white">Sentiment Trend</h4>
+                </div>
+              </CardHeader>
+              <CardBody>
+                <div className="h-72">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={data.sentimentAnalysis.sentimentTrend}>
+                      <XAxis dataKey="timestamp" hide />
+                      <YAxis />
+                      <Tooltip />
+                      <Line
+                        type="monotone"
+                        dataKey="intensity"
+                        stroke="#3b82f6"
+                        strokeWidth={2}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardBody>
+            </Card>
+
+            <Card className="bg-gray-800">
+              <CardHeader className="pb-0 pt-6 px-4">
+                <div className="flex items-center space-x-2">
+                  <BiPulse className="w-6 h-6 text-red-500" />
+                  <h4 className="text-xl font-bold text-white">Stress Pattern</h4>
+                </div>
+              </CardHeader>
+              <CardBody>
+                <div className="h-72">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={data.psychologicalProfile.stressPattern}>
+                      <XAxis dataKey="timestamp" hide />
+                      <YAxis />
+                      <Tooltip />
+                      <Line
+                        type="monotone"
+                        dataKey="stress"
+                        stroke="#ef4444"
+                        strokeWidth={2}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardBody>
+            </Card>
+          </div>
+
+          {/* Primary Emotions */}
+          <Card className="bg-gray-800">
+            <CardHeader className="pb-0 pt-6 px-4">
+              <div className="flex items-center space-x-2">
+                <RiEmotionLine className="w-6 h-6 text-yellow-500" />
+                <h4 className="text-xl font-bold text-white">Primary Emotions</h4>
+              </div>
+            </CardHeader>
+            <CardBody>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {emotionsList.map(({ emotion, value }) => (
+                  <div
+                    key={emotion}
+                    className="flex items-center space-x-2 bg-gray-700 p-4 rounded-lg"
+                  >
+                    {getEmotionIcon(emotion)}
+                    <div>
+                      <p className="text-gray-300 capitalize">{emotion}</p>
+                      <p className="text-lg font-bold text-white">{value}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardBody>
+          </Card>
+        </div>}
     </div>
   );
 }
