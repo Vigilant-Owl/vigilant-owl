@@ -76,7 +76,7 @@ const WhatsAppBot = () => {
   }
 
   useEffect(() => {
-    const channel = supabase.channel("qrcodes").on("postgres_changes", { event: "UPDATE", schema: "public", table: "qrcodes" }, setQRCode).subscribe();
+    const channel = supabase.channel("qrcodes_channel").on("postgres_changes", { event: "UPDATE", schema: "public", table: "qrcodes" }, setQRCode).subscribe();
     handleGetQRCode();
     return () => {
       channel.unsubscribe();

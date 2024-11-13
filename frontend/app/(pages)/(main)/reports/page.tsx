@@ -19,7 +19,7 @@ import {
   MdOutlinePsychology
 } from "react-icons/md";
 // import Test from "@/components/Test";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { createClient } from "@/utils/supabase/client";
 import Link from "next/link";
@@ -222,8 +222,9 @@ const Reports = () => {
   const [loading, setLoading] = useState(false);
   const [isData, setIsData] = useState(false);
 
-  const handleGetReport = useCallback(async (payload: any) => {
+  const handleGetReport = async (payload: any) => {
     try {
+      console.log(payload);
       if (payload.eventType === "INSERT" || payload.eventType === "UPDATE") {
         console.log(payload.new);
         setData(JSON.parse(payload.new.data));
@@ -232,7 +233,7 @@ const Reports = () => {
     } catch (err) {
       console.error(err);
     }
-  }, []);
+  }
 
   const handleGetInitialReport = async () => {
     try {
@@ -276,11 +277,11 @@ const Reports = () => {
   }, [])
 
   useEffect(() => {
-    const channel = supabase.channel("reports").on("postgres_changes", { event: "*", schema: "public", table: "messages" }, handleGetReport).subscribe();
+    const channel = supabase.channel("reports_channel").on("postgres_changes", { event: "*", schema: "public", table: "reports" }, handleGetReport).subscribe();
     return () => {
       channel.unsubscribe();
     }
-  }, [handleGetReport, supabase]);
+  }, []);
 
   // const handleGetReport = async (table: string, phoneNumber: string) => {
   //   try {

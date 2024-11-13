@@ -1,7 +1,7 @@
 const cron = require("node-cron");
 const supabase = require("../config/supabase");
 // cron.schedule("0 */3 * * *", async () => {
-cron.schedule("*/5 * * * *", async () => {
+cron.schedule("*/2 * * * *", async () => {
   try {
     console.log("Running a task every 3 hours");
     // Your task logic here
@@ -20,6 +20,7 @@ cron.schedule("*/5 * * * *", async () => {
         // endDate,
         // tableId || "1"
       );
+      console.log(report);
       if (report === "no data") {
         return;
       }
@@ -28,6 +29,7 @@ cron.schedule("*/5 * * * *", async () => {
         .select("*")
         .eq("parent_id", group.parent_id)
         .eq("group_id", group.group_id);
+      console.log(previousReport, group.parent_id, group.group_id);
       if (reportError) throw reportError;
       if (previousReport.length) {
         const { error } = await supabase
@@ -43,9 +45,6 @@ cron.schedule("*/5 * * * *", async () => {
           data: JSON.stringify(report),
         });
         if (error) throw error;
-      }
-      if (error) {
-        return error;
       }
     });
   } catch (err) {

@@ -63,8 +63,10 @@ const generateFallbackAnalysis = (error) => ({
 });
 
 global.ai = {};
-global.ai.analyzeTone = async (message) => {
+global.ai.analyzeTone = async (message, retries = 5, delay = 200) => {
   try {
+    // Making the API call to OpenAI
+    console.log("AI input", message);
     const completion = await openai.chat.completions.create({
       model: "gpt-4-turbo",
       messages: [
@@ -79,18 +81,34 @@ global.ai.analyzeTone = async (message) => {
       ],
       temperature: 0.4,
       max_tokens: 500,
-      // response_format: { type: "json_object" },
     });
+
+    // Extracting the response content
+    const responseContent = completion.choices[0].message.content;
+
+    // Parsing the JSON response
+    console.log("AI Output", responseContent);
     let jsonResponse;
     try {
       jsonResponse = JSON.parse(responseContent);
     } catch (err) {
-      return global.ai.analyzeTone(message);
+      console.error("Error parsing JSON response:", err);
+      if (retries > 0) {
+        console.log(`Retrying in ${delay}ms...`);
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        return global.ai.analyzeTone(message, retries - 1, delay);
+      }
+      return generateFallbackAnalysis(err);
     }
 
     return jsonResponse;
   } catch (error) {
     console.error("Error in tone analysis:", error);
+    // if (retries > 0) {
+    //   console.log(`Retrying in ${delay}ms...`);
+    //   await new Promise((resolve) => setTimeout(resolve, delay));
+    //   return global.ai.analyzeTone(message, retries - 1, delay);
+    // }
     return generateFallbackAnalysis(error);
   }
 };
@@ -293,12 +311,23 @@ global.ai.generateReport = async (
       return "no data";
     }
 
-    const analysisResults = await Promise.all(
-      messages.map(async (msg) => ({
-        ...msg,
-        analysis: await global.ai.analyzeTone(msg.content),
-      }))
-    );
+    const analysisResults = [];
+
+    for (const msg of messages) {
+      try {
+        const analysis = await global.ai.analyzeTone(msg.content);
+        analysisResults.push({
+          ...msg,
+          analysis,
+        });
+      } catch (error) {
+        console.error("Error analyzing message:", error);
+        // analysisResults.push({
+        //   ...msg,
+        //   analysis: null,
+        // });
+      }
+    }
 
     return processAnalysisResults(analysisResults, startDate, endDate);
   } catch (err) {

@@ -43,7 +43,7 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    const channel = supabase.channel("messages").on("postgres_changes", { event: "INSERT", schema: "public", table: "messages" }, addMessage).subscribe();
+    const channel = supabase.channel("messages_channel").on("postgres_changes", { event: "INSERT", schema: "public", table: "messages" }, addMessage).subscribe();
     return () => {
       channel.unsubscribe();
     }
