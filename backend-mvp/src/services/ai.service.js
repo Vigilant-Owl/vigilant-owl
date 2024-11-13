@@ -81,8 +81,14 @@ global.ai.analyzeTone = async (message) => {
       max_tokens: 500,
       // response_format: { type: "json_object" },
     });
+    let jsonResponse;
+    try {
+      jsonResponse = JSON.parse(responseContent);
+    } catch (err) {
+      return global.ai.analyzeTone(message);
+    }
 
-    return JSON.parse(completion.choices[0].message.content);
+    return jsonResponse;
   } catch (error) {
     console.error("Error in tone analysis:", error);
     return generateFallbackAnalysis(error);

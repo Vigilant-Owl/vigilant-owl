@@ -339,145 +339,145 @@ const Reports = () => {
   return (
     <div className="flex flex-col gap-4">
       {/* <Test onGetReport={handleGetReport} loading={loading} /> */}
-      {loading && <Spinner />}
-      {!isData ?
-        <div className="flex flex-col gap-4 text-center">
-          <div>{`You didn't install the service.`}</div>
-          <Link href="/overview" className="text-blue-400 hover:text-blue-600 underline">Go to install page</Link>
-        </div>
-        : <div className="w-full p-4 space-y-4 bg-gray-900 min-h-screen rounded-lg">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-6">
-            <h1 className="text-2xl font-bold text-white">Analysis Report</h1>
-            <div className="text-gray-400">
-              {data.metadata.timespan.startDate} ~ {data.metadata.timespan.endDate}
+      {loading ? <Spinner /> :
+        (!isData ?
+          <div className="flex flex-col gap-4 text-center">
+            <div>{`You didn't install the service.`}</div>
+            <Link href="/overview" className="text-blue-400 hover:text-blue-600 underline">Go to install page</Link>
+          </div>
+          : <div className="w-full p-4 space-y-4 bg-gray-900 min-h-screen rounded-lg">
+            {/* Header */}
+            <div className="flex items-center justify-between mb-6">
+              <h1 className="text-2xl font-bold text-white">Analysis Report</h1>
+              <div className="text-gray-400">
+                {data.metadata.timespan.startDate} ~ {data.metadata.timespan.endDate}
+              </div>
             </div>
-          </div>
 
-          {/* Key Metrics */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            <Card className="bg-gray-800">
-              <CardBody className="flex flex-row items-center space-x-4">
-                <BiMessageDetail className="w-8 h-8 text-blue-500" />
-                <div>
-                  <p className="text-gray-400">Total Messages</p>
-                  <h3 className="text-2xl font-bold text-white">{data.metadata.totalMessages}</h3>
-                </div>
-              </CardBody>
-            </Card>
-
-            <Card className="bg-gray-800">
-              <CardBody className="flex flex-row items-center space-x-4">
-                <RiEmotionLine className="w-8 h-8 text-green-500" />
-                <div>
-                  <p className="text-gray-400">Emotional Intensity</p>
-                  <h3 className="text-2xl font-bold text-white">{data.emotionalAnalysis.averageIntensity.toFixed(2)}</h3>
-                </div>
-              </CardBody>
-            </Card>
-
-            <Card className="bg-gray-800">
-              <CardBody className="flex flex-row items-center space-x-4">
-                <MdOutlinePsychology className="w-8 h-8 text-purple-500" />
-                <div>
-                  <p className="text-gray-400">Average Stress</p>
-                  <h3 className="text-2xl font-bold text-white">{data.psychologicalProfile.averageStress.toFixed(2)}</h3>
-                </div>
-              </CardBody>
-            </Card>
-
-            <Card className="bg-gray-800">
-              <CardBody className="flex flex-row items-center space-x-4">
-                <BiHeart className="w-8 h-8 text-red-500" />
-                <div>
-                  <p className="text-gray-400">Positive Messages</p>
-                  <h3 className="text-2xl font-bold text-white">{data.sentimentAnalysis.distribution.positive}</h3>
-                </div>
-              </CardBody>
-            </Card>
-          </div>
-
-          {/* Charts Row */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-            <Card className="bg-gray-800">
-              <CardHeader className="pb-0 pt-6 px-4">
-                <div className="flex items-center space-x-2">
-                  <BiTrendingUp className="w-6 h-6 text-blue-500" />
-                  <h4 className="text-xl font-bold text-white">Sentiment Trend</h4>
-                </div>
-              </CardHeader>
-              <CardBody>
-                <div className="h-72">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={data.sentimentAnalysis.sentimentTrend}>
-                      <XAxis dataKey="timestamp" hide />
-                      <YAxis />
-                      <Tooltip />
-                      <Line
-                        type="monotone"
-                        dataKey="intensity"
-                        stroke="#3b82f6"
-                        strokeWidth={2}
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-              </CardBody>
-            </Card>
-
-            <Card className="bg-gray-800">
-              <CardHeader className="pb-0 pt-6 px-4">
-                <div className="flex items-center space-x-2">
-                  <BiPulse className="w-6 h-6 text-red-500" />
-                  <h4 className="text-xl font-bold text-white">Stress Pattern</h4>
-                </div>
-              </CardHeader>
-              <CardBody>
-                <div className="h-72">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={data.psychologicalProfile.stressPattern}>
-                      <XAxis dataKey="timestamp" hide />
-                      <YAxis />
-                      <Tooltip />
-                      <Line
-                        type="monotone"
-                        dataKey="stress"
-                        stroke="#ef4444"
-                        strokeWidth={2}
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-              </CardBody>
-            </Card>
-          </div>
-
-          {/* Primary Emotions */}
-          <Card className="bg-gray-800">
-            <CardHeader className="pb-0 pt-6 px-4">
-              <div className="flex items-center space-x-2">
-                <RiEmotionLine className="w-6 h-6 text-yellow-500" />
-                <h4 className="text-xl font-bold text-white">Primary Emotions</h4>
-              </div>
-            </CardHeader>
-            <CardBody>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {emotionsList.map(({ emotion, value }) => (
-                  <div
-                    key={emotion}
-                    className="flex items-center space-x-2 bg-gray-700 p-4 rounded-lg"
-                  >
-                    {getEmotionIcon(emotion)}
-                    <div>
-                      <p className="text-gray-300 capitalize">{emotion}</p>
-                      <p className="text-lg font-bold text-white">{value}</p>
-                    </div>
+            {/* Key Metrics */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+              <Card className="bg-gray-800">
+                <CardBody className="flex flex-row items-center space-x-4">
+                  <BiMessageDetail className="w-8 h-8 text-blue-500" />
+                  <div>
+                    <p className="text-gray-400">Total Messages</p>
+                    <h3 className="text-2xl font-bold text-white">{data.metadata.totalMessages}</h3>
                   </div>
-                ))}
-              </div>
-            </CardBody>
-          </Card>
-        </div>}
+                </CardBody>
+              </Card>
+
+              <Card className="bg-gray-800">
+                <CardBody className="flex flex-row items-center space-x-4">
+                  <RiEmotionLine className="w-8 h-8 text-green-500" />
+                  <div>
+                    <p className="text-gray-400">Emotional Intensity</p>
+                    <h3 className="text-2xl font-bold text-white">{data.emotionalAnalysis.averageIntensity.toFixed(2)}</h3>
+                  </div>
+                </CardBody>
+              </Card>
+
+              <Card className="bg-gray-800">
+                <CardBody className="flex flex-row items-center space-x-4">
+                  <MdOutlinePsychology className="w-8 h-8 text-purple-500" />
+                  <div>
+                    <p className="text-gray-400">Average Stress</p>
+                    <h3 className="text-2xl font-bold text-white">{data.psychologicalProfile.averageStress.toFixed(2)}</h3>
+                  </div>
+                </CardBody>
+              </Card>
+
+              <Card className="bg-gray-800">
+                <CardBody className="flex flex-row items-center space-x-4">
+                  <BiHeart className="w-8 h-8 text-red-500" />
+                  <div>
+                    <p className="text-gray-400">Positive Messages</p>
+                    <h3 className="text-2xl font-bold text-white">{data.sentimentAnalysis.distribution.positive}</h3>
+                  </div>
+                </CardBody>
+              </Card>
+            </div>
+
+            {/* Charts Row */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+              <Card className="bg-gray-800">
+                <CardHeader className="pb-0 pt-6 px-4">
+                  <div className="flex items-center space-x-2">
+                    <BiTrendingUp className="w-6 h-6 text-blue-500" />
+                    <h4 className="text-xl font-bold text-white">Sentiment Trend</h4>
+                  </div>
+                </CardHeader>
+                <CardBody>
+                  <div className="h-72">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={data.sentimentAnalysis.sentimentTrend}>
+                        <XAxis dataKey="timestamp" hide />
+                        <YAxis />
+                        <Tooltip />
+                        <Line
+                          type="monotone"
+                          dataKey="intensity"
+                          stroke="#3b82f6"
+                          strokeWidth={2}
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardBody>
+              </Card>
+
+              <Card className="bg-gray-800">
+                <CardHeader className="pb-0 pt-6 px-4">
+                  <div className="flex items-center space-x-2">
+                    <BiPulse className="w-6 h-6 text-red-500" />
+                    <h4 className="text-xl font-bold text-white">Stress Pattern</h4>
+                  </div>
+                </CardHeader>
+                <CardBody>
+                  <div className="h-72">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={data.psychologicalProfile.stressPattern}>
+                        <XAxis dataKey="timestamp" hide />
+                        <YAxis />
+                        <Tooltip />
+                        <Line
+                          type="monotone"
+                          dataKey="stress"
+                          stroke="#ef4444"
+                          strokeWidth={2}
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardBody>
+              </Card>
+            </div>
+
+            {/* Primary Emotions */}
+            <Card className="bg-gray-800">
+              <CardHeader className="pb-0 pt-6 px-4">
+                <div className="flex items-center space-x-2">
+                  <RiEmotionLine className="w-6 h-6 text-yellow-500" />
+                  <h4 className="text-xl font-bold text-white">Primary Emotions</h4>
+                </div>
+              </CardHeader>
+              <CardBody>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {emotionsList.map(({ emotion, value }) => (
+                    <div
+                      key={emotion}
+                      className="flex items-center space-x-2 bg-gray-700 p-4 rounded-lg"
+                    >
+                      {getEmotionIcon(emotion)}
+                      <div>
+                        <p className="text-gray-300 capitalize">{emotion}</p>
+                        <p className="text-lg font-bold text-white">{value}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardBody>
+            </Card>
+          </div>)}
     </div>
   );
 }

@@ -37,6 +37,10 @@ try {
       global.wsServer.emit("connection", ws, request);
     });
   });
+
+  process.on("unhandledRejection", (reason, promise) => {
+    console.error("Unhandled Promise Rejection:", reason);
+  });
 } catch (err) {
   console.error(err);
 }

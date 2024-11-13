@@ -38,11 +38,11 @@ module.exports = {
       const group = await global.client.createGroup(title, [whatsappId]);
       console.log("Group created successfully:", group);
       // const message = await global.client.sendMessage(
-      //   group.gid._serialize,
+      //   group.gid._serialized,
       //   consentMessage
       // );
       const { error } = await supabase.from("consent-messages").insert({
-        group_id: group.gid._serialize,
+        group_id: group.gid._serialized,
         title: title,
         phone_number: phoneNumber,
         parent_id: parentId,
