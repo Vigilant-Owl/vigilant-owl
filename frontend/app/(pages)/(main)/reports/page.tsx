@@ -242,8 +242,9 @@ const Reports = () => {
       if (session.session) {
         const { data, error } = await supabase.from("reports").select("*").eq("parent_id", session.session.user.id);
         if (error) throw error;
-        if (data.length && data[0].data) {
-          setData(JSON.parse(data[0].data));
+        if (data.length) {
+          const report: any = data[0];
+          setData(JSON.parse(report.data));
           setIsData(true);
         } else {
           const { data: consentMessages, error } = await supabase.from("consent-messages").select("*").eq("parent_id", session.session.user.id);
