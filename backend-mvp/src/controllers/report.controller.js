@@ -13,7 +13,7 @@ module.exports = {
       console.log(report);
 
       if (report === "no data") {
-        return res.status(400).json({
+        return res.status(200).json({
           status: "error",
           message: "There is no data.",
         });

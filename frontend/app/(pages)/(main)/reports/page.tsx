@@ -256,6 +256,8 @@ const Reports = () => {
             if (response.status === "success") {
               setData(response.data);
               setIsData(true);
+            } else {
+              return toast.error(response.message);
             }
           } else {
             toast.error("You didn't install the service.");
