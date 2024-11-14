@@ -83,18 +83,19 @@ const GroupSelector = ({ onGetReport, loading }: { onGetReport: (table: string, 
   // }, [groupId]);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-center px-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-center px-4 w-full min-w-fit">
       <Select
         disallowEmptySelection
         isRequired
         label="Select group"
-        className="w-full"
-        defaultSelectedKeys={[groupIndex]}
+        className="w-full min-w-48"
+        selectedKeys={[groupIndex]}
         onSelectionChange={(keys: any) => {
           const [value] = keys;
           setGroupIndex(value);
           setGroup(groups[value]);
         }}
+        defaultSelectedKeys={["None1"]}
         isDisabled={groupLoading}
       >
         {groups.map((group: any, index: number) => (
@@ -107,9 +108,10 @@ const GroupSelector = ({ onGetReport, loading }: { onGetReport: (table: string, 
         disallowEmptySelection
         isRequired
         isDisabled={groupLoading}
-        label="Select child's phone number"
-        className="w-full"
+        label="Select phone number"
+        className="w-full min-w-48"
         selectedKeys={[group.phone_number]}
+        defaultSelectedKeys={["None"]}
       // onSelectionChange={(keys: any) => {
       //   const [value] = keys;
       //   setPhoneNumber(value);
@@ -125,10 +127,11 @@ const GroupSelector = ({ onGetReport, loading }: { onGetReport: (table: string, 
         ))} */}
       </Select>
       <Button color="primary" isLoading={loading} onClick={() => {
-        if (group.group_id) {
+        console.log(group);
+        if (group.group_id == "") {
           return toast.error("Please select the group.");
         }
-        if (group.phone_number) {
+        if (group.phone_number == "") {
           return toast.error("Please select the child's phone number.");
         }
         onGetReport(group.group_id, group.phone_number);

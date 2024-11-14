@@ -334,7 +334,7 @@ const Reports = () => {
     .sort((a, b) => b.value - a.value);
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 w-full">
       {/* <Test onGetReport={handleGetReport} loading={loading} /> */}
       <GroupSelector onGetReport={handleGetReportByRequest} loading={loading} />
       {loading ? <Spinner /> :

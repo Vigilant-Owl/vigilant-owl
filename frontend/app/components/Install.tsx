@@ -59,7 +59,7 @@ const Install = () => {
 
   return (
     <>
-      <Button onClick={() => onOpen()} color="success" variant="shadow">
+      <Button onClick={() => onOpen()} color="success" variant="shadow" className="min-w-56">
         Install Service
       </Button>
 
