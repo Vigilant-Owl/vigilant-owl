@@ -182,7 +182,7 @@ const Header = () => {
       </NavbarContent>
       <NavbarMenu>
         {menuItems.map((item, index) => (
-          <NavbarMenuItem key={`${item}-${index}`}>
+          <NavbarMenuItem key={`${item}-${index}`} onClick={() => setIsMenuOpen(false)}>
             <Link
               className="w-full"
               color={
@@ -194,6 +194,23 @@ const Header = () => {
             </Link>
           </NavbarMenuItem>
         ))}
+        {user ? <>
+          <NavbarMenuItem key="profile" onClick={() => setIsMenuOpen(false)}>
+            <Link href="/profile">
+              Profile
+            </Link>
+          </NavbarMenuItem>
+          <NavbarMenuItem key="sign-out" onClick={() => handleLogOut()}>
+            Sign Out
+          </NavbarMenuItem>
+        </> : <>
+          <NavbarMenuItem key="login" onClick={() => setIsMenuOpen(false)}>
+            <Login />
+          </NavbarMenuItem>
+          <NavbarMenuItem key="register" onClick={() => setIsMenuOpen(false)}>
+            <Register />
+          </NavbarMenuItem>
+        </>}
       </NavbarMenu>
     </Navbar >
   )

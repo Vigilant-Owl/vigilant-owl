@@ -72,10 +72,13 @@ const Login = () => {
   }
   return (
     <>
+      <div onClick={() => onOpen()} className="sm:hidden md:flex">
+        Login
+      </div>
       <Button onClick={() => onOpen()} color="primary" className="hidden md:flex">
         Login
       </Button>
-      <Button onClick={() => onOpen()} color="primary" isIconOnly className="flex md:hidden" radius="full">
+      <Button onClick={() => onOpen()} color="primary" isIconOnly className="hidden sm:flex md:hidden" radius="full">
         <IoMdLogIn className="text-2xl pointer-events-none" />
       </Button>
 

@@ -91,10 +91,13 @@ const Register = () => {
 
   return (
     <>
+      <div onClick={() => onOpen()} className="sm:hidden md:flex">
+        Register
+      </div>
       <Button onClick={() => onOpen()} color="secondary" className="hidden md:flex">
         Register
       </Button>
-      <Button onClick={() => onOpen()} color="secondary" isIconOnly className="flex md:hidden" radius="full">
+      <Button onClick={() => onOpen()} color="secondary" isIconOnly className="hidden sm:flex md:hidden" radius="full">
         <IoMdPersonAdd className="text-2xl pointer-events-none" />
       </Button>
       <Modal onClose={() => !loading && onClose()} isOpen={isOpen} onOpenChange={onOpenChange} className="dark-modal">

@@ -44,7 +44,8 @@ const Install = () => {
       }
     } catch (err: any) {
       console.error(err);
-      toast.error(err?.message);
+      toast.error("Please try again. If you’re still unable to install the service, feel free to contact us.");
+      // toast.error(err?.message);
     } finally {
       setLoading(false);
     }
