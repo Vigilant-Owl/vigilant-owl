@@ -111,6 +111,8 @@ const Header = () => {
     <Navbar
       isBordered
       className={`max-w-[1120px] text-2xl ${lato.className}`}
+    // isMenuOpen={isMenuOpen}
+    // onMenuOpenChange={setIsMenuOpen}
     >
       <NavbarContent className="sm:hidden" justify="start">
         <NavbarMenuToggle aria-label={isMenuOpen ? "Close menu" : "Open menu"} onToggle={() => setIsMenuOpen(!isMenuOpen)} />
@@ -182,12 +184,9 @@ const Header = () => {
       </NavbarContent>
       <NavbarMenu>
         {menuItems.map((item, index) => (
-          <NavbarMenuItem key={`${item}-${index}`} onClick={() => setIsMenuOpen(false)}>
+          <NavbarMenuItem key={`${item}-${index}`} onClick={() => { setIsMenuOpen(false) }}>
             <Link
               className="w-full"
-              color={
-                index === 2 ? "warning" : index === menuItems.length - 1 ? "danger" : "foreground"
-              }
               href={item.route}
             >
               {item.name}
@@ -195,19 +194,22 @@ const Header = () => {
           </NavbarMenuItem>
         ))}
         {user ? <>
-          <NavbarMenuItem key="profile" onClick={() => setIsMenuOpen(false)}>
-            <Link href="/profile">
+          <NavbarMenuItem key="profile" onClick={() => { setIsMenuOpen(false) }}>
+            <Link href="/profile" className="text-blue-600 hover:text-blue-700 transition-all">
               Profile
             </Link>
           </NavbarMenuItem>
-          <NavbarMenuItem key="sign-out" onClick={() => handleLogOut()}>
+          <NavbarMenuItem key="sign-out" onClick={() => {
+            setIsMenuOpen(false);
+            handleLogOut();
+          }} className="text-red-600 hover:text-red-700 transition-all">
             Sign Out
           </NavbarMenuItem>
         </> : <>
-          <NavbarMenuItem key="login" onClick={() => setIsMenuOpen(false)}>
+          <NavbarMenuItem key="login">
             <Login />
           </NavbarMenuItem>
-          <NavbarMenuItem key="register" onClick={() => setIsMenuOpen(false)}>
+          <NavbarMenuItem key="register">
             <Register />
           </NavbarMenuItem>
         </>}

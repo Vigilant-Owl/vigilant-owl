@@ -5,9 +5,9 @@ import { useState } from "react";
 import { IoMdEye, IoMdEyeOff, IoMdPersonAdd } from "react-icons/io";
 import { toast } from "sonner";
 import Joi from 'joi';
-import { RegisterData, ResponseData } from "../types";
+import { RegisterData } from "../types";
 import { createClient } from "@/utils/supabase/client";
-import { apiRegisterUser } from "../apis/auth";
+// import { apiRegisterUser } from "../apis/auth";
 
 const Register = () => {
   const supabase = createClient();
@@ -54,9 +54,9 @@ const Register = () => {
 
       setLoading(true);
 
-      const response: ResponseData = await apiRegisterUser(data);
+      // const response: ResponseData = await apiRegisterUser(data);
 
-      console.log(response);
+      // console.log(response);
 
       const { error } = await supabase.auth.signUp({
         email: data.email,
@@ -91,7 +91,7 @@ const Register = () => {
 
   return (
     <>
-      <div onClick={() => onOpen()} className="sm:hidden md:flex">
+      <div onClick={() => onOpen()} className="sm:hidden text-indigo-600 hover:text-indigo-700 transition-all">
         Register
       </div>
       <Button onClick={() => onOpen()} color="secondary" className="hidden md:flex">

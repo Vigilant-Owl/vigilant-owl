@@ -5,8 +5,8 @@ import { useState } from "react";
 import { IoMdEye, IoMdEyeOff, IoMdLogIn } from "react-icons/io";
 import { toast } from "sonner";
 import Joi from 'joi';
-import { apiLoginUser } from "../apis/auth";
-import { ResponseData } from "../types";
+// import { apiLoginUser } from "../apis/auth";
+// import { ResponseData } from "../types";
 import { createClient } from "@/utils/supabase/client";
 
 const Login = () => {
@@ -45,9 +45,9 @@ const Login = () => {
 
       setLoading(true);
 
-      const response: ResponseData = await apiLoginUser(data);
+      // const response: ResponseData = await apiLoginUser(data);
 
-      console.log(response);
+      // console.log(response);
 
       const { error } = await supabase.auth.signInWithPassword(
         data
@@ -72,7 +72,7 @@ const Login = () => {
   }
   return (
     <>
-      <div onClick={() => onOpen()} className="sm:hidden md:flex">
+      <div onClick={() => onOpen()} className="sm:hidden text-blue-600 hover:text-blue-700 transition-all">
         Login
       </div>
       <Button onClick={() => onOpen()} color="primary" className="hidden md:flex">
