@@ -56,6 +56,8 @@ global.client.on("message_create", async (msg) => {
     const sender = msg.from;
     const senderNumber = sender.split("@")[0];
     const isGroup = sender.includes("@g.us");
+    const chat = await msg.getChat();
+    const groupMemberCounts = chat.participants.length;
 
     const authorNumber = msg.author?.split("@")[0];
 
@@ -74,7 +76,12 @@ global.client.on("message_create", async (msg) => {
         .eq("group_id", sender);
       console.log(data);
       console.log("Consent Message", data);
-      if (data && data.length) {
+      if (
+        data &&
+        data.length &&
+        data[0].message_id &&
+        data[0].member_count >= groupMemberCounts - 1
+      ) {
         if (data[0].is_active) {
           const { error } = await supabase.from("messages").insert({
             content: msg.body,
@@ -99,8 +106,6 @@ global.client.on("message_create", async (msg) => {
         }
       } else {
         const message = await global.client.sendMessage(sender, consentMessage);
-        const chat = await msg.getChat();
-        const groupMemberCounts = chat.participants.length;
         const { error } = await supabase
           .from("consent_messages")
           .update({
@@ -138,59 +143,59 @@ global.client.on("remote_session_saved", () => {
   // Do Stuff...
 });
 
-global.client.on("group_join", async (notification) => {
-  try {
-    console.log("Group join notification:", notification);
+// global.client.on("group_join", async (notification) => {
+//   try {
+//     console.log("Group join notification:", notification);
 
-    // Get the group invite info
-    const groupId = notification.chatId;
-    const inviter = notification.author;
-    const chat = await notification.getChat();
-    const groupMemberCounts = chat.participants.length;
-    console.log("Group Member Counts", groupMemberCounts);
+//     // Get the group invite info
+//     const groupId = notification.chatId;
+//     const inviter = notification.author;
+//     const chat = await notification.getChat();
+//     const groupMemberCounts = chat.participants.length;
+//     console.log("Group Member Counts", groupMemberCounts);
 
-    // Accept the invite automatically
-    console.log(groupId, inviter);
-    // const group = await global.client.acceptInvite(groupId);
-    // console.log("Successfully joined group:", group);
+//     // Accept the invite automatically
+//     console.log(groupId, inviter);
+//     // const group = await global.client.acceptInvite(groupId);
+//     // console.log("Successfully joined group:", group);
 
-    // You can send a message to the group after joining
+//     // You can send a message to the group after joining
 
-    const { data } = await supabase
-      .from("consent_messages")
-      .select("*")
-      .eq("group_id", groupId);
-    if (data && data.length) {
-      const message = await global.client.sendMessage(groupId, consentMessage);
-      const { error } = await supabase
-        .from("consent_messages")
-        .update({
-          message_id: message.id.id,
-          member_count: groupMemberCounts - 1,
-          is_active: null,
-        })
-        .eq("group_id", groupId);
-      console.log(error);
-      if (data[0].message_id) {
-        await supabase
-          .from("reactions")
-          .delete()
-          .eq("message_id", data[0].message_id);
-      }
-    } else {
-      const { error } = await supabase.from("consent_messages").insert({
-        message_id: message.id.id,
-        group_id: groupId,
-        member_count: groupMemberCounts - 1,
-      });
-      if (error) {
-        throw error;
-      }
-    }
-  } catch (error) {
-    console.error("Error accepting group invite:", error);
-  }
-});
+//     const { data } = await supabase
+//       .from("consent_messages")
+//       .select("*")
+//       .eq("group_id", groupId);
+//     if (data && data.length) {
+//       const message = await global.client.sendMessage(groupId, consentMessage);
+//       const { error } = await supabase
+//         .from("consent_messages")
+//         .update({
+//           message_id: message.id.id,
+//           member_count: groupMemberCounts - 1,
+//           is_active: null,
+//         })
+//         .eq("group_id", groupId);
+//       console.log(error);
+//       if (data[0].message_id) {
+//         await supabase
+//           .from("reactions")
+//           .delete()
+//           .eq("message_id", data[0].message_id);
+//       }
+//     } else {
+//       const { error } = await supabase.from("consent_messages").insert({
+//         message_id: message.id.id,
+//         group_id: groupId,
+//         member_count: groupMemberCounts - 1,
+//       });
+//       if (error) {
+//         throw error;
+//       }
+//     }
+//   } catch (error) {
+//     console.error("Error accepting group invite:", error);
+//   }
+// });
 
 global.client.on("group_leave", async (notification) => {
   console.log(notification);
