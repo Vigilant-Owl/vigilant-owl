@@ -29,8 +29,9 @@ const Install = () => {
           return toast.warning("Please input your phone number correctly.");
         }
 
+        const realPhoneNumber = phoneNumber.startsWith("+") ? phoneNumber.slice(1) : phoneNumber;
         const data = {
-          phoneNumber,
+          phoneNumber: realPhoneNumber,
           title,
           parentId: res.session?.user.id
         }
