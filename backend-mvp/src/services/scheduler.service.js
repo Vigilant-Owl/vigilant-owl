@@ -6,7 +6,7 @@ cron.schedule("0 */3 * * *", async () => {
     console.log("Running a task every 3 hours");
     // Your task logic here
     const { data: groups, error } = await supabase
-      .from("consent-messages")
+      .from("consent_messages")
       .select("*")
       .eq("is_active", true);
     if (error) throw error;

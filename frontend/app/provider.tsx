@@ -1,3 +1,4 @@
+import 'react-phone-number-input/style.css'
 import { NextUIProvider } from "@nextui-org/react";
 import { Toaster } from "sonner";
 import React from "react";

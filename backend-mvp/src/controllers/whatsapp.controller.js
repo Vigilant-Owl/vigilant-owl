@@ -41,7 +41,7 @@ module.exports = {
       //   group.gid._serialized,
       //   consentMessage
       // );
-      const { error } = await supabase.from("consent-messages").insert({
+      const { error } = await supabase.from("consent_messages").insert({
         group_id: group.gid._serialized,
         title: title,
         phone_number: phoneNumber,

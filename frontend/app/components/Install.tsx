@@ -7,26 +7,32 @@ import { createClient } from "@/utils/supabase/client";
 import { Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure, Input } from "@nextui-org/react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { isValidPhoneNumber } from 'react-phone-number-input'
+import PhoneNumberInput from "./PhoneNumberInput";
 
 const Install = () => {
   const supabase = createClient();
   const { onClose, isOpen, onOpenChange, onOpen } = useDisclosure();
   const [loading, setLoading] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [title, setTitle] = useState("");
 
-  const handleInstall = async (form: HTMLFormElement) => {
+  const handleInstall = async () => {
     try {
       const { data: res } = await supabase.auth.getSession();
       if (res.session) {
-        const formData = new FormData(form);
 
-        const data = {
-          phoneNumber: formData.get("phoneNumber") as string,
-          title: formData.get("title") as string,
-          parentId: res.session?.user.id
+        if (!title) {
+          return toast.warning("Please input your title.");
+        }
+        if (!isValidPhoneNumber(phoneNumber)) {
+          return toast.warning("Please input your phone number correctly.");
         }
 
-        if (!data.phoneNumber) {
-          return toast.warning("Please input your phone number.");
+        const data = {
+          phoneNumber,
+          title,
+          parentId: res.session?.user.id
         }
 
         setLoading(true);
@@ -60,10 +66,7 @@ const Install = () => {
       <Modal onClose={onClose} isOpen={isOpen} onOpenChange={onOpenChange} className="dark-modal">
         <ModalContent>
           {(onClose) => (
-            <form onSubmit={(e) => {
-              e.preventDefault();
-              handleInstall(e.currentTarget);
-            }} action="#" method="POST">
+            <>
               <ModalHeader className="flex flex-col gap-1">
                 Install Bot
               </ModalHeader>
@@ -71,22 +74,18 @@ const Install = () => {
                 <Input
                   placeholder="Enter your title"
                   isRequired
-                  type="text"
+                  type="tel"
                   variant="flat"
                   label="Title"
                   name="title"
                   labelPlacement="outside"
                   isDisabled={loading}
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
                 />
-                <Input
-                  placeholder="Enter your phone number"
-                  isRequired
-                  type="text"
-                  variant="flat"
-                  label="Phone Number"
-                  name="phoneNumber"
-                  labelPlacement="outside"
-                  isDisabled={loading}
+                <PhoneNumberInput
+                  value={phoneNumber}
+                  setValue={setPhoneNumber}
                 />
               </ModalBody>
               <ModalFooter>
@@ -95,6 +94,7 @@ const Install = () => {
                   color="success"
                   type="submit"
                   isLoading={loading}
+                  onClick={handleInstall}
                 >
                   Install
                 </Button>
@@ -107,7 +107,7 @@ const Install = () => {
                   Close
                 </Button>
               </ModalFooter>
-            </form>
+            </>
           )}
         </ModalContent>
       </Modal>

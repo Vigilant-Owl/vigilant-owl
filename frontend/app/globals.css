@@ -34,3 +34,8 @@ body {
   background: linear-gradient(135deg, #151718, #333333);
   color: #ffffff; /* Ensure text is readable */
 }
+
+.phone-number-input input {
+  background: transparent !important;
+  outline: none !important;
+}

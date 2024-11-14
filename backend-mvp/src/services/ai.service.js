@@ -298,7 +298,7 @@ global.ai.generateReport = async (
   try {
     const { data: messages, error } = await supabase
       // .from(`messages_test_${tableId}`)
-      .from("messages")
+      .from("analysis_messages")
       .select("*")
       .eq("chat_id", chatId)
       .eq("sender_number", childNumber);
@@ -315,10 +315,9 @@ global.ai.generateReport = async (
 
     for (const msg of messages) {
       try {
-        const analysis = await global.ai.analyzeTone(msg.content);
         analysisResults.push({
-          ...msg,
-          analysis,
+          created_at: msg.created_at,
+          analysis: JSON.parse(msg.data),
         });
       } catch (error) {
         console.error("Error analyzing message:", error);

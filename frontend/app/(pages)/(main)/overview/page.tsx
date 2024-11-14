@@ -3,11 +3,10 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
-import { formatPhoneNumber } from "@/utils/formatPhoneNumber";
+import { formatPhoneNumberIntl } from "react-phone-number-input";
 // import QRCode from "@/components/QRCode";
 import Install from "@/components/Install";
 // import useWebSocket from "react-use-websocket";
-
 // const WS_URL = process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8000";
 
 export default function Home() {
@@ -79,7 +78,7 @@ export default function Home() {
       <main className="flex-col flex gap-4 py-4">
         <Install />
         {/* <QRCode /> */}
-        <table>
+        <table className="px-4">
           <thead>
             <tr>
               <th>Number</th>
@@ -90,8 +89,8 @@ export default function Home() {
           <tbody>
             {messages.map((item: any, index) => (
               <tr key={index}>
-                <td>
-                  {formatPhoneNumber("+" + item?.sender_number)}
+                <td width={150} className="text-center">
+                  {formatPhoneNumberIntl("+" + item?.sender_number)}
                 </td>
                 <td>
                   {item?.content}

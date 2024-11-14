@@ -23,6 +23,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { createClient } from "@/utils/supabase/client";
 import Link from "next/link";
+import GroupSelector from "@/components/GroupSelector";
 
 const Reports = () => {
   const mockupData = {
@@ -221,46 +222,43 @@ const Reports = () => {
   const [data, setData] = useState<any>(mockupData);
   const [loading, setLoading] = useState(false);
   const [isData, setIsData] = useState(false);
+  const [groupId, setGroupId] = useState("");
 
   const handleGetReport = async (payload: any) => {
     try {
       console.log(payload);
       if (payload.eventType === "INSERT" || payload.eventType === "UPDATE") {
         console.log(payload.new);
-        setData(JSON.parse(payload.new.data));
-        setIsData(true);
+        if (payload.new.group_id === groupId) {
+          setData(JSON.parse(payload.new.data));
+          setIsData(true);
+        }
       }
     } catch (err) {
       console.error(err);
     }
   }
 
-  const handleGetInitialReport = async () => {
+  const handleGetReportByRequest = async (groupId: string, phoneNumber: string) => {
     try {
+      setGroupId(groupId);
       setLoading(true);
       const { data: session, error } = await supabase.auth.getSession();
       if (error) throw error;
       if (session.session) {
-        const { data, error } = await supabase.from("reports").select("*").eq("parent_id", session.session.user.id);
+        const { data, error } = await supabase.from("reports").select("*").eq("parent_id", session.session.user.id).eq("group_id", groupId);
         if (error) throw error;
         if (data.length) {
           const report: any = data[0];
           setData(JSON.parse(report.data));
           setIsData(true);
         } else {
-          const { data: consentMessages, error } = await supabase.from("consent-messages").select("*").eq("parent_id", session.session.user.id);
-          if (error) throw error;
-          if (consentMessages.length) {
-            const data: any = consentMessages[0];
-            const response = await getReport({ groupId: data?.group_id, phoneNumber: data?.phone_number, startDate: "2024-11-10", endDate: "2024-11-14" });
-            if (response.status === "success") {
-              setData(response.data);
-              setIsData(true);
-            } else {
-              return toast.error(response.message);
-            }
+          const response = await getReport({ groupId, phoneNumber, startDate: "2024-11-10", endDate: "2024-11-14" });
+          if (response.status === "success") {
+            setData(response.data);
+            setIsData(true);
           } else {
-            toast.error("You didn't install the service.");
+            return toast.error(response.message);
           }
         }
       } else {
@@ -273,10 +271,6 @@ const Reports = () => {
       setLoading(false);
     }
   }
-
-  useEffect(() => {
-    handleGetInitialReport();
-  }, [])
 
   useEffect(() => {
     const channel = supabase.channel("reports_channel").on("postgres_changes", { event: "*", schema: "public", table: "reports" }, handleGetReport).subscribe();
@@ -342,6 +336,7 @@ const Reports = () => {
   return (
     <div className="flex flex-col gap-4">
       {/* <Test onGetReport={handleGetReport} loading={loading} /> */}
+      <GroupSelector onGetReport={handleGetReportByRequest} loading={loading} />
       {loading ? <Spinner /> :
         (!isData ?
           <div className="flex flex-col gap-4 text-center">
