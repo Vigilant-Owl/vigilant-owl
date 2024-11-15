@@ -35,6 +35,7 @@ const GroupSelector = ({ onGetReport, loading }: { onGetReport: (table: string, 
         if (data.length) {
           setGroupIndex(0);
           setGroup(data[0]);
+          onGetReport(data[0].group_id, data[0].phone_number);
         } else {
           toast.error("You didn't install the service.");
         }
