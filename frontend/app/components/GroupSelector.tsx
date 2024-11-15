@@ -93,7 +93,7 @@ const GroupSelector = ({ onGetReport, loading }: { onGetReport: (table: string, 
         onSelectionChange={(keys: any) => {
           const [value] = keys;
           setGroupIndex(value);
-          // setGroup(groups[value]);
+          setGroup(groups[value]);
         }}
         defaultSelectedKeys={["None"]}
         isDisabled={groupLoading}
