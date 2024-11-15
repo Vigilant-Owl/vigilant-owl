@@ -88,19 +88,19 @@ const GroupSelector = ({ onGetReport, loading }: { onGetReport: (table: string, 
         disallowEmptySelection
         isRequired
         label="Select group"
-        className="w-full min-w-48"
-        selectedKeys={[groupIndex]}
+        className="w-full min-w-60"
+        selectedKeys={[`${groupIndex}`]}
         onSelectionChange={(keys: any) => {
           const [value] = keys;
           setGroupIndex(value);
-          setGroup(groups[value]);
+          // setGroup(groups[value]);
         }}
-        defaultSelectedKeys={["None1"]}
+        defaultSelectedKeys={["None"]}
         isDisabled={groupLoading}
       >
         {groups.map((group: any, index: number) => (
           <SelectItem key={index}>
-            {group.title} ({group.group_id})
+            {`${group.title} (${group.group_id})`}
           </SelectItem>
         ))}
       </Select>

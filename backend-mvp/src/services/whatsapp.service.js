@@ -88,7 +88,7 @@ global.client.on("message_create", async (msg) => {
             sender_number: isGroup ? authorNumber : senderNumber,
             is_group: isGroup,
             chat_id: sender,
-            message_id: message.id.id,
+            message_id: msg.id.id,
           });
           if (error) throw error;
           const analysis = await global.ai.analyzeTone(msg.body);
@@ -98,7 +98,7 @@ global.client.on("message_create", async (msg) => {
               data: JSON.stringify(analysis),
               chat_id: sender,
               sender_number: isGroup ? authorNumber : senderNumber,
-              message_id: message.id.id,
+              message_id: msg.id.id,
             });
           if (insertError) throw insertError;
         } else if (data[0].is_active === null) {
@@ -113,8 +113,8 @@ global.client.on("message_create", async (msg) => {
             member_count: groupMemberCounts - 1,
             is_active: null,
           })
-          .eq("group_id", groupId);
-        if (data[0].message_id) {
+          .eq("group_id", sender);
+        if (data && data.length && data[0].message_id) {
           await supabase
             .from("reactions")
             .delete()
