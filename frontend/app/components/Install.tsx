@@ -61,7 +61,7 @@ const Install = () => {
   return (
     <>
       <Button onClick={() => onOpen()} color="success" variant="shadow" className="min-w-56">
-        Install Service
+        Create A Group
       </Button>
 
       <Modal onClose={onClose} isOpen={isOpen} onOpenChange={onOpenChange} className="dark-modal">
@@ -69,7 +69,7 @@ const Install = () => {
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-col gap-1">
-                Install Bot
+                Create A Group
               </ModalHeader>
               <ModalBody>
                 <Input
