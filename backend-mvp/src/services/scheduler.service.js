@@ -1,7 +1,7 @@
 const cron = require("node-cron");
 const supabase = require("../config/supabase");
 cron.schedule("0 */3 * * *", async () => {
-// cron.schedule("*/1 * * * *", async () => {
+  // cron.schedule("*/1 * * * *", async () => {
   try {
     console.log("Running a task every 3 hours");
     // Your task logic here
@@ -49,6 +49,17 @@ cron.schedule("0 */3 * * *", async () => {
         if (error) throw error;
       }
     });
+  } catch (err) {
+    console.error(err);
+  }
+});
+
+cron.schedule("0 0 1 * *", async () => {
+  try {
+    console.log("Running a task every month");
+    await supabase.rpc("remove_long_analysis_data");
+    await supabase.rpc("remove_unused_group_data");
+    await supabase.rpc("remove_long_data");
   } catch (err) {
     console.error(err);
   }

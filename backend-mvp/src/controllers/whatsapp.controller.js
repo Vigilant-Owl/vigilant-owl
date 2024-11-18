@@ -1,36 +1,6 @@
-const fs = require("fs");
 const supabase = require("../config/supabase");
-const { consentMessage } = require("../constants/messages");
 
 module.exports = {
-  getQr: (req, res, next) => {
-    try {
-      fs.readFile("storage/qrcodes/last.qr", (err, last_qr) => {
-        if (err) {
-          console.error(err);
-          return res.status(400).json({ err: err });
-        }
-        return res.status(200).json({ qrcode: last_qr.toString() });
-        // fs.readFile("storage/sessions/session.json", (serr, sessiondata) => {
-        //   if (err && sessiondata) {
-        //     next(new Error({ Authenticated: false }));
-        //   } else if (!err && serr) {
-        //     res.send({ qrcode: last_qr.toString() });
-        //     res.end();
-        //   } else {
-        //     next(new Error({ Authenticated: false }));
-        //   }
-        // });
-      });
-    } catch (err) {
-      console.error(err);
-      return res.status(400).json({
-        status: "error",
-        message: err.message,
-      });
-    }
-  },
-
   installBot: async (req, res) => {
     try {
       const { title, phoneNumber, parentId } = req.body;
