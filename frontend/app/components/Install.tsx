@@ -75,7 +75,7 @@ const Install = () => {
                 <Input
                   placeholder="Enter your title"
                   isRequired
-                  type="tel"
+                  type="text"
                   variant="flat"
                   label="Title"
                   name="title"
