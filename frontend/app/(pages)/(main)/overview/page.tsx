@@ -3,7 +3,6 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
-import { formatPhoneNumberIntl } from "react-phone-number-input";
 // import QRCode from "@/components/QRCode";
 import Install from "@/components/Install";
 // import useWebSocket from "react-use-websocket";
@@ -77,32 +76,6 @@ export default function Home() {
     <div className="items-center justify-items-center font-[roboto] w-fit">
       <main className="flex-col flex gap-4 py-4">
         <Install />
-        {/* <QRCode /> */}
-        <table className="px-4">
-          <thead>
-            <tr>
-              <th>Number</th>
-              <th>Content</th>
-              {/* <th>Chat ID</th> */}
-            </tr>
-          </thead>
-          <tbody>
-            {messages.map((item: any, index) => (
-              <tr key={index}>
-                <td width={150} className="text-center">
-                  {formatPhoneNumberIntl("+" + item?.sender_number)}
-                </td>
-                <td>
-                  {item?.content}
-                </td>
-                {/* <td>
-                  {item?.chat_id}
-                </td> */}
-
-              </tr>
-            ))}
-          </tbody>
-        </table>
       </main>
     </div>
   );
