@@ -39,7 +39,7 @@ const Header = () => {
     },
   ];
 
-  const fetchUserProfile = async (userId: string) => {
+  const fetchUserProfile = useCallback(async (userId: string) => {
     const { data: profile }: { data: any } = await supabase
       .from("profiles")
       .select("*")
@@ -52,7 +52,7 @@ const Header = () => {
       email: profile?.email,
     }
     setUser(user);
-  };
+  }, [supabase]);
 
   const handleAuthStateChange = useCallback(async (event: string) => {
     console.log(event);
@@ -69,7 +69,7 @@ const Header = () => {
         setUser(null);
       }
     }
-  }, []);
+  }, [fetchUserProfile, supabase.auth]);
 
   const clearStorage = () => {
     [window.localStorage, window.sessionStorage].forEach((storage) => {
@@ -101,7 +101,7 @@ const Header = () => {
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [fetchUserProfile, handleAuthStateChange, supabase.auth]);
 
   const handleLogOut = async () => {
     await supabase.auth.signOut();

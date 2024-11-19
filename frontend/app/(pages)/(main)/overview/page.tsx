@@ -24,7 +24,7 @@ export default function Home() {
     }
   }, [messages]);
 
-  const handleGetInitialData = async () => {
+  const handleGetInitialData = useCallback(async () => {
     const { data, error } = await supabase.from("messages").select("*");
     if (error) {
       console.error(error);
@@ -34,11 +34,11 @@ export default function Home() {
     if (data) {
       setMessages(data as any[]);
     }
-  }
+  }, [supabase]);
 
   useEffect(() => {
     handleGetInitialData();
-  }, []);
+  }, [handleGetInitialData]);
 
   useEffect(() => {
     const channel = supabase.channel("messages_channel").on("postgres_changes", { event: "INSERT", schema: "public", table: "messages" }, addMessage).subscribe();

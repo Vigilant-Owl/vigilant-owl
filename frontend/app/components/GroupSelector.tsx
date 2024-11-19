@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Button, Select, SelectItem } from "@nextui-org/react";
 import { createClient } from "@/utils/supabase/client";
 import { toast } from "sonner";
@@ -21,7 +21,7 @@ const GroupSelector = ({ onGetReport, loading }: { onGetReport: (table: string, 
   // const [phoneNumber, setPhoneNumber] = useState("");
   // const [phoneNumberLoading, setPhoneNumberLoading] = useState(false);
 
-  const handleGetGroupData = async () => {
+  const handleGetGroupData = useCallback(async () => {
     try {
       const { data: res } = await supabase.auth.getSession();
       if (res.session) {
@@ -47,7 +47,7 @@ const GroupSelector = ({ onGetReport, loading }: { onGetReport: (table: string, 
     } finally {
       setGroupLoading(false);
     }
-  }
+  }, [onGetReport, supabase]);
 
   // const handleGetPhoneNumbers = async () => {
   //   try {
@@ -75,7 +75,7 @@ const GroupSelector = ({ onGetReport, loading }: { onGetReport: (table: string, 
 
   useEffect(() => {
     handleGetGroupData();
-  }, []);
+  }, [handleGetGroupData]);
 
   // useEffect(() => {
   //   if (groupId) {

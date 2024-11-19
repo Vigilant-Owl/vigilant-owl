@@ -11,6 +11,7 @@
   "dependencies": {
     "@nextui-org/accordion": "^2.0.40",
     "@nextui-org/react": "^2.4.8",
+    "@stripe/stripe-js": "^5.0.0",
     "@supabase/ssr": "^0.5.1",
     "@supabase/supabase-js": "^2.46.0",
     "axios": "^1.7.7",
@@ -26,6 +27,7 @@
     "react-phone-number-input": "^3.4.9",
     "react-use-websocket": "^4.10.0",
     "recharts": "^2.13.3",
+    "sharp": "^0.33.5",
     "sonner": "^1.5.0",
     "ws": "^8.18.0"
   },

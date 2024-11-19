@@ -1,6 +1,8 @@
 "use client"
 import React, { useState } from "react";
 import PlanCard from "@/components/PlanCard";
+import { loadStripe } from '@stripe/stripe-js';
+import { checkout } from "@/apis/stripe";
 
 const PricingPlans = () => {
   const [selectedPlanIndex, setSelectedPlanIndex] = useState(0);
@@ -29,6 +31,25 @@ const PricingPlans = () => {
     },
   ];
 
+  const handleSubmit = async () => {
+    const stripe = await loadStripe(
+      process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY as string
+    );
+    if (!stripe) {
+      return;
+    }
+    try {
+      const response = await checkout({ priceId: "price_1QMX3kRoMLPC6yHCvIqEA8LV" })
+      if (response.status === "success") {
+        await stripe.redirectToCheckout({
+          sessionId: response.data.result.id
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <div className="flex mx-auto justify-center items-center">
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
@@ -37,7 +58,10 @@ const PricingPlans = () => {
             key={index}
             {...plan}
             selected={index === selectedPlanIndex}
-            onSelect={() => setSelectedPlanIndex(index)}
+            onSelect={() => {
+              handleSubmit();
+              setSelectedPlanIndex(index);
+            }}
           />
         ))}
       </div>

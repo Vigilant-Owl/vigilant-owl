@@ -19,7 +19,7 @@ import {
   MdOutlinePsychology
 } from "react-icons/md";
 // import Test from "@/components/Test";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { createClient } from "@/utils/supabase/client";
 import Link from "next/link";
@@ -224,7 +224,7 @@ const Reports = () => {
   const [isData, setIsData] = useState(false);
   const [groupId, setGroupId] = useState("");
 
-  const handleGetReport = async (payload: any) => {
+  const handleGetReport = useCallback(async (payload: any) => {
     try {
       console.log(payload);
       if (payload.eventType === "INSERT" || payload.eventType === "UPDATE") {
@@ -237,7 +237,7 @@ const Reports = () => {
     } catch (err) {
       console.error(err);
     }
-  }
+  }, [groupId]);
 
   const handleGetReportByRequest = async (groupId: string, phoneNumber: string) => {
     try {
@@ -277,7 +277,7 @@ const Reports = () => {
     return () => {
       channel.unsubscribe();
     }
-  }, []);
+  }, [handleGetReport, supabase]);
 
   // const handleGetReport = async (table: string, phoneNumber: string) => {
   //   try {

@@ -2,7 +2,7 @@
 "use client"
 
 // import { Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure } from "@nextui-org/react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useQRCode } from 'next-qrcode';
 // import useWebSocket, { ReadyState } from "react-use-websocket";
 // import { IoQrCode } from "react-icons/io5";
@@ -47,7 +47,7 @@ const WhatsAppBot = () => {
   //   }
   // }, [lastMessage]);
 
-  const handleGetQRCode = async () => {
+  const handleGetQRCode = useCallback(async () => {
     try {
       // const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_API}/whatsapp/getqr`);
       // const { qrcode } = await response.json();
@@ -61,7 +61,7 @@ const WhatsAppBot = () => {
     } catch (err) {
       console.error(err);
     }
-  }
+  }, [supabase]);
 
   const setQRCode = async (payload: any) => {
     try {
@@ -81,7 +81,7 @@ const WhatsAppBot = () => {
     return () => {
       channel.unsubscribe();
     }
-  }, []);
+  }, [handleGetQRCode, supabase]);
 
   return (
     <>
