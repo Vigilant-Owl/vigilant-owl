@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { getAuthToken } from "@/utils/tokenUtils";
 import axios from "axios";
 
 const apiBaseUrl =
@@ -7,9 +9,16 @@ const apiUrl = `${apiBaseUrl}/stripe`;
 
 export const checkout = async (data: { priceId: string }) => {
   try {
-    const response = await axios.post(`${apiUrl}/checkout`, data);
+    const token = getAuthToken();
+
+    const response = await axios.post(`${apiUrl}/checkout`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return response.data;
-  } catch (err) {
+  } catch (err: any) {
     console.error(err);
+    return err.response.data;
   }
 };

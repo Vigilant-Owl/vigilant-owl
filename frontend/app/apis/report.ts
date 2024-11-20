@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { getAuthToken } from "@/utils/tokenUtils";
 import axios from "axios";
 
 const apiBaseUrl =
@@ -13,9 +15,16 @@ export const getReport = async (data: {
   tableId?: string;
 }) => {
   try {
-    const response = await axios.post(`${apiUrl}/`, data);
+    const token = getAuthToken();
+
+    const response = await axios.post(`${apiUrl}/`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return response.data;
-  } catch (err) {
+  } catch (err: any) {
     console.error(err);
+    return err.response.data;
   }
 };

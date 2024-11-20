@@ -46,6 +46,7 @@ const BillingPage: React.FC = () => {
 
   useEffect(() => {
     const { sessionId } = getQueryParams();
+    console.log(sessionId);
     if (sessionId) {
       fetchSessionDetails(sessionId);
     } else {

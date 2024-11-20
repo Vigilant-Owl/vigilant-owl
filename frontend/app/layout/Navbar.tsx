@@ -104,6 +104,7 @@ const Header = () => {
   }, [fetchUserProfile, handleAuthStateChange, supabase.auth]);
 
   const handleLogOut = async () => {
+    localStorage.clear();
     await supabase.auth.signOut();
   }
 

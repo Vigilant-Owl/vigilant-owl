@@ -17,7 +17,7 @@ module.exports = {
         success_url: `${process.env.SERVER_URL}/billing`,
         cancel_url: `${process.env.SERVER_URL}/billing`,
         metadata: {
-          userId: "cdadev24@gmail.com",
+          userId: req.userId,
           priceId,
         },
       });

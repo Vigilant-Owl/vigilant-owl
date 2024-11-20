@@ -8,6 +8,7 @@ const apiUrl = `${apiBaseUrl}/auth`;
 export const apiLoginUser = async (data: LoginData) => {
   try {
     const response = await axios.post(`${apiUrl}/login`, data);
+    console.log(response);
     return response.data;
   } catch (error) {
     console.error(error);

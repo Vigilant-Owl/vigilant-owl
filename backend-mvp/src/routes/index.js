@@ -6,7 +6,11 @@ const whatsappRouter = require("./whatsapp.route");
 const reportRouter = require("./report.route");
 const stripeRouter = require("./stripe.route");
 
+const verifyToken = require("../middlewares/auth.middleware");
+
 router.use("/auth", authRouter);
+
+router.use(verifyToken);
 
 router.use("/stripe", stripeRouter);
 router.use("/whatsapp", whatsappRouter);
