@@ -10,10 +10,9 @@ const verifyToken = require("../middlewares/auth.middleware");
 
 router.use("/auth", authRouter);
 
-router.use("/stripe", stripeRouter);
-
 router.use(verifyToken);
 
+router.use("/stripe", stripeRouter);
 router.use("/whatsapp", whatsappRouter);
 router.use("/report", reportRouter);
 

@@ -40,7 +40,11 @@ module.exports = {
       const sig = req.headers["stripe-signature"];
       let event;
       try {
-        event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
+        event = stripe.webhooks.constructEvent(
+          req.body,
+          sig,
+          process.env.STRIPE_SECRET_WEBHOOK_KEY
+        );
       } catch (err) {
         // On error, log and return the error message
         console.log(`❌ Error message: ${err.message}`);

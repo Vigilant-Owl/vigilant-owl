@@ -1,12 +1,19 @@
 try {
   const express = require("express");
   const cors = require("cors");
-
   require("dotenv").config();
 
   const app = express();
 
   app.use(cors());
+
+  const { webhook } = require("./controllers/stripe.controller");
+  app.post(
+    "/api/stripe/webhook",
+    express.raw({ type: "application/json" }),
+    webhook
+  );
+
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
 

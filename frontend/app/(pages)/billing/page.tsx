@@ -33,11 +33,13 @@ const BillingPage: React.FC = () => {
 
     try {
       const response = await getSessionDetail(sessionId);
-      console.log(response);
-      setSessionDetails(response);
-      setMessage(
-        `Payment successful for ${response.amount_total / 100} ${response.currency.toUpperCase()}.`
-      );
+      if (response) {
+        console.log(response);
+        setSessionDetails(response);
+        setMessage(
+          `Payment successful for ${response.amount_total / 100} ${response.currency.toUpperCase()}.`
+        );
+      }
     } catch (error) {
       setMessage("Error loading payment details.");
       console.error("Error fetching session details:", error);
