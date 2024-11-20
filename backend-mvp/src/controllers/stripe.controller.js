@@ -132,18 +132,28 @@ module.exports = {
   cancelSubscription: async (req, res) => {
     try {
       const { subscriptionId } = req.body;
-      const canceledSubscription = await stripe.subscriptions.del(
+
+      if (!subscriptionId) {
+        return res.status(400).json({
+          status: "error",
+          message: "Subscription ID is required",
+        });
+      }
+
+      const canceledSubscription = await stripe.subscriptions.cancel(
         subscriptionId
       );
+
       res.json({
         status: "success",
         message: "Subscription canceled successfully",
         canceledSubscription,
       });
     } catch (error) {
-      console.error(error);
+      console.error("Subscription cancellation error:", error);
       res.status(500).json({
-        message: "Failed to retrieve session details",
+        status: "error",
+        message: "Failed to cancel subscription",
         error: error.message,
       });
     }
