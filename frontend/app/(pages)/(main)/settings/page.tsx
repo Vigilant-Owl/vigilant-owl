@@ -82,10 +82,10 @@ const PricingPlans = () => {
             } else if (data?.current_price_id === PRICE_IDS.yearly) {
               setSelectedPlanIndex(2);
               return;
-            } else if (data?.free_trial) {
-              setSelectedPlanIndex(0);
-              return;
             }
+          } else if (data?.free_trial) {
+            setSelectedPlanIndex(0);
+            return;
           }
         }
         setSelectedPlanIndex(-1);
