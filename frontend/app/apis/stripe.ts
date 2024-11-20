@@ -22,3 +22,18 @@ export const checkout = async (data: { priceId: string }) => {
     return err.response.data;
   }
 };
+
+export const getSessionDetail = async (sessionId: string | null) => {
+  try {
+    const token = getAuthToken();
+
+    const response = await axios.get(`${apiUrl}/session/${sessionId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (err) {
+    console.error(err);
+  }
+};

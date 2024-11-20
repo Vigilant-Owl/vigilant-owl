@@ -14,8 +14,8 @@ module.exports = {
           },
         ],
         mode: "subscription",
-        success_url: `${process.env.SERVER_URL}/billing`,
-        cancel_url: `${process.env.SERVER_URL}/billing`,
+        success_url: `${process.env.SERVER_URL}/billing?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${process.env.SERVER_URL}/settings`,
         metadata: {
           userId: req.userId,
           priceId,
@@ -70,6 +70,25 @@ module.exports = {
       return res.status(400).json({
         status: "error",
         message: err.message,
+      });
+    }
+  },
+  getSessionDetail: async (req, res) => {
+    const { sessionId } = req.params;
+
+    try {
+      const session = await stripe.checkout.sessions.retrieve(sessionId);
+      res.json({
+        id: session.id,
+        payment_status: session.payment_status,
+        amount_total: session.amount_total,
+        currency: session.currency,
+      });
+    } catch (error) {
+      console.error("Error fetching session details:", error);
+      res.status(500).json({
+        message: "Failed to retrieve session details",
+        error: error.message,
       });
     }
   },

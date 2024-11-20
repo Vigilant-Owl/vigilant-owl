@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { Card, CardBody, Spacer } from "@nextui-org/react";
+import { getSessionDetail } from "@/apis/stripe";
 
 type SessionDetails = {
   id: string | null;
@@ -31,12 +32,11 @@ const BillingPage: React.FC = () => {
     if (!sessionId) return;
 
     try {
-      const response = await fetch(`/api/session/${sessionId}`);
-      if (!response.ok) throw new Error("Failed to fetch session details");
-      const sessionData = await response.json();
-      setSessionDetails(sessionData);
+      const response = await getSessionDetail(sessionId);
+      console.log(response);
+      setSessionDetails(response);
       setMessage(
-        `Payment successful for ${sessionData.amount_total / 100} ${sessionData.currency.toUpperCase()}.`
+        `Payment successful for ${response.amount_total / 100} ${response.currency.toUpperCase()}.`
       );
     } catch (error) {
       setMessage("Error loading payment details.");
