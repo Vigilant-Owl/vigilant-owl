@@ -109,7 +109,7 @@ const PricingPlans = () => {
           const { error }: { data: any, error: any } = await supabase.from("profiles").update({
             free_trial: true,
             subscription_date: new Date()
-          });
+          }).eq("id", session.user.id);
           if (error) throw error;
           toast.success("Start the free trial successfully.");
         }
