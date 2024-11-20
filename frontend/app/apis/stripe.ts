@@ -37,3 +37,18 @@ export const getSessionDetail = async (sessionId: string | null) => {
     console.error(err);
   }
 };
+
+export const cancelSubscription = async (data: { subscriptionId: string }) => {
+  try {
+    const token = getAuthToken();
+
+    const response = await axios.post(`${apiUrl}/cancel-subscription`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (err) {
+    console.error(err);
+  }
+};

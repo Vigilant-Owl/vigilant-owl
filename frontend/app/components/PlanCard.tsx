@@ -8,16 +8,21 @@ interface PlanCardProps {
   description: string;
   features: string[];
   buttonText: string;
+  cancelText: string | null;
   headerGradient: string;
-  selected: boolean;
+  currentSelected: number;
+  index: number
   onSelect: () => void;
+  isProcessing: boolean;
+  possibleFreeTrial: boolean;
 }
 
-const PlanCard = ({ title, description, features, buttonText, headerGradient, selected, onSelect }: PlanCardProps) => (
+const PlanCard = ({ title, description, features, buttonText, cancelText, headerGradient, currentSelected, index, onSelect, isProcessing, possibleFreeTrial }: PlanCardProps) => (
   <Card
-    className={`max-w-lg text-white transition-all ${selected ? "border border-primary" : "border border-transparent"}`}
+    className={`max-w-lg text-white transition-all ${currentSelected === index ? "border border-primary" : "border border-transparent"}`}
     isHoverable
-    isBlurred={selected}
+    isDisabled={!possibleFreeTrial && index === 0}
+    isBlurred={currentSelected === index}
   >
     <CardHeader className="flex justify-center items-center" style={{ background: headerGradient }}>
       <Image src={logoImage} className="rounded-full" alt={`${title} Logo`} width={100} height={100} />
@@ -36,8 +41,10 @@ const PlanCard = ({ title, description, features, buttonText, headerGradient, se
       <div className="mt-auto pt-10">
         <Button color="secondary" className="w-full font-bold text-base py-3"
           onClick={onSelect}
+          isLoading={isProcessing && currentSelected === index}
+          isDisabled={(currentSelected !== index && currentSelected !== -1) || isProcessing || (!possibleFreeTrial && index === 0)}
         >
-          {buttonText}
+          {currentSelected === index ? cancelText : buttonText}
         </Button>
       </div>
     </CardBody>

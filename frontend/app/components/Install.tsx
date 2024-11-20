@@ -58,9 +58,37 @@ const Install = () => {
     }
   }
 
+  const handleOpen = async () => {
+    try {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error) throw error;
+      if (session?.user.id) {
+        const { data, error }: { data: any, error: any } = await supabase.from("profiles").select("*").eq("id", session.user.id).single();
+        if (error) throw error;
+        if (data) {
+          if (data?.subscription_status === "active") {
+            onOpen();
+          } else if (data?.free_trial) {
+            const { data: groups, error } = await supabase.from('consent_messages').select("*").eq("parent_id", session.user.id)
+            if (error) throw error;
+            if (groups.length > 0) {
+              return toast.warning("During the free trial period, you can install the service on one device.");
+            } else {
+              onOpen();
+            }
+          } else {
+            return toast.warning("Please select a subscription plan before installing this service.");
+          }
+        }
+      }
+    } catch (err: any) {
+      toast.error(err);
+      console.error(err);
+    }
+  }
   return (
     <>
-      <Button onClick={() => onOpen()} color="success" variant="shadow" className="min-w-56">
+      <Button onClick={() => handleOpen()} color="success" variant="shadow" className="min-w-56">
         Create A Group
       </Button>
 
