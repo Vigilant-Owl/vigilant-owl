@@ -77,7 +77,7 @@ const PricingPlans = () => {
           }
           if (data?.subscription_status === "active") {
             if (data?.current_price_id === PRICE_IDS.monthly) {
-              setSelectedPlanIndex(-1);
+              setSelectedPlanIndex(1);
               return;
             } else if (data?.current_price_id === PRICE_IDS.yearly) {
               setSelectedPlanIndex(2);
