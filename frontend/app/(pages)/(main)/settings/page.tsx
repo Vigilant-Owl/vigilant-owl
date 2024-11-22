@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { loadStripe } from '@stripe/stripe-js';
 import PlanCard from "@/components/PlanCard";
 import { cancelSubscription, checkout } from "@/apis/stripe";
@@ -62,7 +62,7 @@ const PricingPlans = () => {
     },
   ];
 
-  const handleGetInitialData = useCallback(async () => {
+  const handleGetInitialData = async () => {
     try {
 
       const { data: { session }, error } = await supabase.auth.getSession();
@@ -94,11 +94,11 @@ const PricingPlans = () => {
       console.error(err);
       toast.error(err.message);
     }
-  }, [supabase]);
+  };
 
   useEffect(() => {
     handleGetInitialData();
-  }, [handleGetInitialData]);
+  }, []);
 
   const handleSubscribe = async (priceId: string | null) => {
     try {

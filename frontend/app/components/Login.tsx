@@ -61,8 +61,9 @@ const Login = () => {
         return toast.error(error.message);
       }
 
-      const { data: userData } = await supabase.from("profiles").select("*").eq("email", data.email).single();
+      const { data: userData, error: profileError } = await supabase.from("profiles").select("*").eq("email", data.email).single();
 
+      if (profileError) throw profileError;
       console.log(userData);
 
       toast.success("Welcome to vigilant owl!");

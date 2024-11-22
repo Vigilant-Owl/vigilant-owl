@@ -68,7 +68,7 @@ export async function updateSession(request: NextRequest) {
   ) {
     const url = request.nextUrl.clone();
     url.pathname = "/";
-    return NextResponse.rewrite(url);
+    return NextResponse.redirect(url);
   }
   // if (
   //   !user &&
