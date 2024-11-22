@@ -340,7 +340,7 @@ const Reports = () => {
       {loading ? <Spinner /> :
         (!isData ?
           <div className="flex flex-col gap-4 text-center">
-            <div>{`You didn't install the service.`}</div>
+            <div>{`You didn't install the service or there is no data.`}</div>
             <Link href="/overview" className="text-blue-400 hover:text-blue-600 underline">Go to install page</Link>
           </div>
           : <div className="w-full p-4 space-y-4 bg-gray-900 min-h-screen rounded-lg">

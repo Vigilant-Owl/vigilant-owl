@@ -157,6 +157,7 @@ const PricingPlans = () => {
         if (index === 0) {
           const { error } = await supabase.from("profiles").update({ free_trial: false }).eq("id", session?.user.id);
           if (error) throw error;
+          setPossibleFreeTrial(false);
           return;
         }
 

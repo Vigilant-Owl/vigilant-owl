@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, Select, SelectItem } from "@nextui-org/react";
 import { createClient } from "@/utils/supabase/client";
 import { toast } from "sonner";
@@ -21,7 +21,7 @@ const GroupSelector = ({ onGetReport, loading }: { onGetReport: (table: string, 
   // const [phoneNumber, setPhoneNumber] = useState("");
   // const [phoneNumberLoading, setPhoneNumberLoading] = useState(false);
 
-  const handleGetGroupData = useCallback(async () => {
+  const handleGetGroupData = async () => {
     try {
       const { data: res } = await supabase.auth.getSession();
       if (res.session) {
@@ -37,7 +37,7 @@ const GroupSelector = ({ onGetReport, loading }: { onGetReport: (table: string, 
           setGroup(data[0]);
           onGetReport(data[0].group_id, data[0].phone_number);
         } else {
-          toast.error("You didn't install the service.");
+          toast.error("You didn't install the service or there is no data.");
         }
       } else {
         toast.error("You didn't sign in, please sign in first.");
@@ -47,7 +47,7 @@ const GroupSelector = ({ onGetReport, loading }: { onGetReport: (table: string, 
     } finally {
       setGroupLoading(false);
     }
-  }, [onGetReport, supabase]);
+  };
 
   // const handleGetPhoneNumbers = async () => {
   //   try {
@@ -75,7 +75,7 @@ const GroupSelector = ({ onGetReport, loading }: { onGetReport: (table: string, 
 
   useEffect(() => {
     handleGetGroupData();
-  }, [handleGetGroupData]);
+  }, []);
 
   // useEffect(() => {
   //   if (groupId) {
