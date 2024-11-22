@@ -75,9 +75,10 @@ const Login = () => {
   }
   return (
     <>
-      <div onClick={() => onOpen()} className="sm:hidden text-blue-600 hover:text-blue-700 transition-all">
-        Login
-      </div>
+      <Button onClick={() => onOpen()} variant="light" className="flex sm:hidden w-full justify-start gap-2 p-2" color="primary">
+        <IoMdLogIn className="text-xl w-6 text-center" />
+        <span className="text-lg">Login</span>
+      </Button>
       <Button onClick={() => onOpen()} color="primary" className="hidden md:flex">
         Login
       </Button>

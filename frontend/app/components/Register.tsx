@@ -91,9 +91,10 @@ const Register = () => {
 
   return (
     <>
-      <div onClick={() => onOpen()} className="sm:hidden text-indigo-600 hover:text-indigo-700 transition-all">
-        Register
-      </div>
+      <Button onClick={() => onOpen()} variant="light" className="flex sm:hidden w-full justify-start gap-2 p-2" color="secondary">
+        <IoMdPersonAdd className="text-xl w-6 text-center" />
+        <span className="text-lg">Register</span>
+      </Button>
       <Button onClick={() => onOpen()} color="secondary" className="hidden md:flex">
         Register
       </Button>
