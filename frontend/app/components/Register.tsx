@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import Joi from 'joi';
 import { RegisterData } from "../types";
 import { createClient } from "@/utils/supabase/client";
+import LegalNotice from "./LegalNotice";
 // import { apiRegisterUser } from "../apis/auth";
 
 const Register = () => {
@@ -171,6 +172,7 @@ const Register = () => {
                   isRequired
                   isDisabled={loading}
                 />
+                <LegalNotice onClick={() => onClose()} />
               </ModalBody>
               <ModalFooter>
                 <Button
