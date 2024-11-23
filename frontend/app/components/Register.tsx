@@ -15,6 +15,7 @@ const Register = () => {
   const { onClose, isOpen, onOpenChange, onOpen } = useDisclosure();
   const [loading, setLoading] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
+  const [isLegalChecked, setIsLegalChecked] = useState(false);
 
   const schema = Joi.object({
     email: Joi.string().email({ tlds: false }).required(),
@@ -172,7 +173,7 @@ const Register = () => {
                   isRequired
                   isDisabled={loading}
                 />
-                <LegalNotice onClick={() => onClose()} />
+                <LegalNotice onClick={() => onClose()} isChecked={isLegalChecked} setIsChecked={setIsLegalChecked} />
               </ModalBody>
               <ModalFooter>
                 <Button
@@ -180,6 +181,7 @@ const Register = () => {
                   aria-label="Register"
                   color="secondary"
                   isLoading={loading}
+                  isDisabled={!isLegalChecked}
                 >
                   Register
                 </Button>
