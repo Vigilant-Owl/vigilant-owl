@@ -17,7 +17,7 @@ module.exports = {
         ],
         mode: "subscription",
         success_url: `${process.env.SERVER_URL}/billing?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${process.env.SERVER_URL}/settings`,
+        cancel_url: `${process.env.SERVER_URL}/subscriptions`,
         metadata: {
           userId: req.userId,
           priceId,

@@ -62,9 +62,9 @@ export async function updateSession(request: NextRequest) {
 
   if (
     !user &&
-    (request.nextUrl.pathname.startsWith("/overview") ||
+    (request.nextUrl.pathname.startsWith("/new-group") ||
       request.nextUrl.pathname.startsWith("/reports") ||
-      request.nextUrl.pathname.startsWith("/settings"))
+      request.nextUrl.pathname.startsWith("/subscriptions"))
   ) {
     const url = request.nextUrl.clone();
     url.pathname = "/";

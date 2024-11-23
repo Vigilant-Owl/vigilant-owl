@@ -81,10 +81,10 @@ const BillingPage: React.FC = () => {
           <h1 className="text-2xl font-bold">Payment Verification Error</h1>
           <p>{error}</p>
           <Button
-            onClick={() => router.push("/settings")}
+            onClick={() => router.push("/subscriptions")}
             color="primary"
           >
-            Return to Settings
+            Return to Subscriptions Page
           </Button>
         </CardBody>
       </Card>
@@ -124,7 +124,7 @@ const BillingPage: React.FC = () => {
 
           <Spacer y={2} />
           <Button
-            onClick={() => router.push("/overview")}
+            onClick={() => router.push("/new-group")}
             color="primary"
           >
             Go to Install Page

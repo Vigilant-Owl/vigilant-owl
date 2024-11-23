@@ -89,7 +89,7 @@ const Install = () => {
   return (
     <>
       <Button onClick={() => handleOpen()} color="success" variant="shadow" className="min-w-56">
-        Create A Group
+        Create a Group
       </Button>
 
       <Modal onClose={onClose} isOpen={isOpen} onOpenChange={onOpenChange} className="dark-modal">
@@ -97,15 +97,15 @@ const Install = () => {
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-col gap-1">
-                Create A Group
+                Create a Group
               </ModalHeader>
               <ModalBody>
                 <Input
-                  placeholder="Enter your title"
+                  placeholder="Please enter the group's name"
                   isRequired
                   type="text"
                   variant="flat"
-                  label="Title"
+                  label="Group Name"
                   name="title"
                   labelPlacement="outside"
                   isDisabled={loading}

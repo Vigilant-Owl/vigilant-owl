@@ -2,18 +2,19 @@
 "use client";
 
 import Link from "next/link";
+import { useCallback, useEffect, useState } from "react";
+import { FiBarChart2, FiFileText, FiSettings, FiHelpCircle, FiUser, FiLogOut } from "react-icons/fi";
+import { Navbar, NavbarBrand, NavbarContent, User, NavbarMenuToggle, NavbarMenu, Dropdown, DropdownTrigger, DropdownItem, DropdownMenu, Button } from "@nextui-org/react";
+import Image from "next/image";
+import { usePathname } from "next/navigation";
+import { toast } from "sonner";
+import { createClient } from "@/utils/supabase/client";
 import NavbarMenus from "./NavbarMenus";
 import Login from "../components/Login";
 import Register from "../components/Register";
 import { lato, roboto } from "../fonts";
-import { createClient } from "@/utils/supabase/client";
-import { useCallback, useEffect, useState } from "react";
 import { UserData } from "@/types";
-import { toast } from "sonner";
-import { Navbar, NavbarBrand, NavbarContent, User, NavbarMenuToggle, NavbarMenu, Dropdown, DropdownTrigger, DropdownItem, DropdownMenu, Button } from "@nextui-org/react";
-import Image from "next/image";
 import logoImage from "@/assets/logo.webp";
-import { usePathname } from "next/navigation";
 
 const Header = () => {
   const supabase = createClient();
@@ -23,10 +24,10 @@ const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
 
   const menuItems = [
-    { name: "Overview", route: "/overview", icon: "📊" },
-    { name: "Reports", route: "/reports", icon: "📋" },
-    { name: "Settings", route: "/settings", icon: "⚙️" },
-    { name: "Help", route: "/help", icon: "❔" },
+    { name: "Open a new group", route: "/new-group", icon: <FiBarChart2 /> },
+    { name: "Reports", route: "/reports", icon: <FiFileText /> },
+    { name: "Subscriptions", route: "/subscriptions", icon: <FiSettings /> },
+    { name: "Help", route: "/help", icon: <FiHelpCircle /> },
   ];
 
   useEffect(() => {
@@ -110,7 +111,6 @@ const Header = () => {
     try {
       await supabase.auth.signOut();
       localStorage.clear();
-      toast.success("Logged out successfully");
     } catch (error) {
       console.error(error);
       toast.error("Error logging out");
@@ -179,6 +179,7 @@ const Header = () => {
       </NavbarContent>
       <NavbarContent className="hidden sm:flex gap-4 w-full" justify="center">
         <NavbarMenus
+          pathname={pathname}
           onClick={() => {
             if (!user) {
               toast.info("Please sign in to access this feature", {
@@ -209,7 +210,7 @@ const Header = () => {
             >
               <DropdownItem key="profile">
                 <Link href="/profile" className="flex items-center gap-2 text-default-900">
-                  <span>👤</span> Profile
+                  <FiUser /> Profile
                 </Link>
               </DropdownItem>
               <DropdownItem
@@ -219,7 +220,7 @@ const Header = () => {
                 onClick={handleLogOut}
               >
                 <span className="flex items-center gap-2">
-                  <span>🚪</span> Sign Out
+                  <FiLogOut /> Sign Out
                 </span>
               </DropdownItem>
             </DropdownMenu>
@@ -260,7 +261,7 @@ const Header = () => {
                 className={`transition-all flex items-center gap-3 ${pathname === "/profile" ? "bg-default-50" : "text-default-900 hover:bg-default-50"} p-2 rounded-lg transition-colors`}
                 onClick={() => setIsMenuOpen(false)}
               >
-                <span className="text-xl w-6 text-center">👤</span>
+                <FiUser className="text-xl w-6 text-center" />
                 <span className="text-lg">Profile</span>
               </Link>
               <Button
@@ -271,7 +272,7 @@ const Header = () => {
                   handleLogOut();
                 }}
               >
-                <span className="text-xl w-6 text-center">🚪</span>
+                <FiLogOut className="text-xl w-6 text-center" />
                 <span className="text-lg">Sign Out</span>
               </Button>
             </div>
