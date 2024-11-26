@@ -15,7 +15,6 @@ Provide a JSON response with the following structure:
 {
   "primaryEmotion": string,
   "secondaryEmotions": string[],
-  "intensity": number (1-10),
   "formality": number (1-10),
   "sentiment": "positive" | "neutral" | "negative",
   "communicationStyle": {
@@ -24,7 +23,6 @@ Provide a JSON response with the following structure:
     "engagement": number (1-10)
   },
   "psychologicalIndicators": {
-    "stress": number (1-10),
     "confidence": number (1-10),
     "anxiety": number (1-10)
   },
@@ -40,7 +38,6 @@ Provide a JSON response with the following structure:
 const generateFallbackAnalysis = (error) => ({
   primaryEmotion: "unknown",
   secondaryEmotions: [],
-  intensity: 5,
   formality: 5,
   sentiment: "neutral",
   communicationStyle: {
@@ -49,7 +46,6 @@ const generateFallbackAnalysis = (error) => ({
     engagement: 5,
   },
   psychologicalIndicators: {
-    stress: 5,
     confidence: 5,
     anxiety: 5,
   },
@@ -65,7 +61,6 @@ const generateFallbackAnalysis = (error) => ({
 global.ai = {};
 global.ai.analyzeTone = async (message, retries = 5, delay = 200) => {
   try {
-    // Making the API call to OpenAI
     console.log("AI input", message);
     const completion = await openai.chat.completions.create({
       model: "gpt-4-turbo",
@@ -83,10 +78,7 @@ global.ai.analyzeTone = async (message, retries = 5, delay = 200) => {
       max_tokens: 500,
     });
 
-    // Extracting the response content
     const responseContent = completion.choices[0].message.content;
-
-    // Parsing the JSON response
     console.log("AI Output", responseContent);
     let jsonResponse;
     try {
@@ -104,31 +96,8 @@ global.ai.analyzeTone = async (message, retries = 5, delay = 200) => {
     return jsonResponse;
   } catch (error) {
     console.error("Error in tone analysis:", error);
-    // if (retries > 0) {
-    //   console.log(`Retrying in ${delay}ms...`);
-    //   await new Promise((resolve) => setTimeout(resolve, delay));
-    //   return global.ai.analyzeTone(message, retries - 1, delay);
-    // }
     return generateFallbackAnalysis(error);
   }
-};
-
-const calculateAverages = (report, divisor) => {
-  const newReport = { ...report };
-
-  newReport.emotionalAnalysis.averageIntensity /= divisor;
-  newReport.communicationPatterns.averageFormality /= divisor;
-  newReport.communicationPatterns.styleMetrics.assertiveness /= divisor;
-  newReport.communicationPatterns.styleMetrics.openness /= divisor;
-  newReport.communicationPatterns.styleMetrics.engagement /= divisor;
-  newReport.psychologicalProfile.averageStress /= divisor;
-  newReport.psychologicalProfile.averageConfidence /= divisor;
-  newReport.psychologicalProfile.averageAnxiety /= divisor;
-  newReport.socialInteraction.averageCooperation /= divisor;
-  newReport.socialInteraction.averageDominance /= divisor;
-  newReport.socialInteraction.averageEmpathy /= divisor;
-
-  return newReport;
 };
 
 const calculateMessageFrequency = (messages) => {
@@ -148,20 +117,26 @@ const getTopItems = (obj, limit) => {
     .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
 };
 
-const generateEmptyReport = (startDate, endDate) => ({
+const generateEmptyReport = (numberOfParticipants, startDate, endDate) => ({
   metadata: {
     totalMessages: 0,
+    numberOfParticipants,
     timespan: { startDate, endDate },
     analysisTimestamp: new Date().toISOString(),
   },
   error: "No messages found in the specified time range",
 });
 
-const processAnalysisResults = (analysisResults, startDate, endDate) => {
+const processAnalysisResults = (
+  analysisResults,
+  numberOfParticipants,
+  startDate,
+  endDate
+) => {
   try {
     const messages = analysisResults.length;
     if (messages === 0) {
-      return generateEmptyReport(startDate, endDate);
+      return generateEmptyReport(numberOfParticipants, startDate, endDate);
     }
 
     const initialReport = {
@@ -173,7 +148,6 @@ const processAnalysisResults = (analysisResults, startDate, endDate) => {
       emotionalAnalysis: {
         primaryEmotions: {},
         secondaryEmotions: {},
-        averageIntensity: 0,
         emotionalVolatility: 0,
       },
       communicationPatterns: {
@@ -185,10 +159,8 @@ const processAnalysisResults = (analysisResults, startDate, endDate) => {
         },
       },
       psychologicalProfile: {
-        averageStress: 0,
         averageConfidence: 0,
         averageAnxiety: 0,
-        stressPattern: [],
       },
       socialInteraction: {
         averageCooperation: 0,
@@ -202,7 +174,17 @@ const processAnalysisResults = (analysisResults, startDate, endDate) => {
       contentAnalysis: {
         commonTags: {},
         messageFrequency: calculateMessageFrequency(analysisResults),
+        chatActivity: {},
       },
+      areasOfFocus: {
+        bullyingHarassment: 0,
+        anxietyStress: 0,
+        inappropriateContent: 0,
+        substanceUse: 0,
+        riskyBehavior: 0,
+        socialExclusion: 0,
+      },
+      slangDictionary: {},
     };
 
     const report = analysisResults.reduce((acc, result, index, array) => {
@@ -218,7 +200,6 @@ const processAnalysisResults = (analysisResults, startDate, endDate) => {
           (acc.emotionalAnalysis.secondaryEmotions[emotion] || 0) + 1;
       });
 
-      newAcc.emotionalAnalysis.averageIntensity += analysis.intensity;
       newAcc.communicationPatterns.averageFormality += analysis.formality;
       newAcc.communicationPatterns.styleMetrics.assertiveness +=
         analysis.communicationStyle.assertiveness;
@@ -227,8 +208,6 @@ const processAnalysisResults = (analysisResults, startDate, endDate) => {
       newAcc.communicationPatterns.styleMetrics.engagement +=
         analysis.communicationStyle.engagement;
 
-      newAcc.psychologicalProfile.averageStress +=
-        analysis.psychologicalIndicators.stress;
       newAcc.psychologicalProfile.averageConfidence +=
         analysis.psychologicalIndicators.confidence;
       newAcc.psychologicalProfile.averageAnxiety +=
@@ -243,20 +222,48 @@ const processAnalysisResults = (analysisResults, startDate, endDate) => {
 
       newAcc.sentimentAnalysis.distribution[analysis.sentiment]++;
 
-      newAcc.psychologicalProfile.stressPattern.push({
-        timestamp: result.created_at,
-        stress: analysis.psychologicalIndicators.stress,
-      });
-
+      // Count sentiment changes
       newAcc.sentimentAnalysis.sentimentTrend.push({
         timestamp: result.created_at,
         sentiment: analysis.sentiment,
-        intensity: analysis.intensity,
       });
 
       analysis.contentTags?.forEach((tag) => {
         newAcc.contentAnalysis.commonTags[tag] =
           (acc.contentAnalysis.commonTags[tag] || 0) + 1;
+      });
+
+      // Calculate chat activity by time of day
+      const hour = new Date(result.created_at).getHours();
+      newAcc.contentAnalysis.chatActivity[hour] =
+        (acc.contentAnalysis.chatActivity[hour] || 0) + 1;
+
+      // Detect areas of focus based on content
+      if (analysis.primaryEmotion.includes("bullying")) {
+        newAcc.areasOfFocus.bullyingHarassment++;
+      }
+      if (analysis.secondaryEmotions.includes("anxiety")) {
+        newAcc.areasOfFocus.anxietyStress++;
+      }
+      if (analysis.contentTags.includes("inappropriate")) {
+        newAcc.areasOfFocus.inappropriateContent++;
+      }
+      if (analysis.contentTags.includes("substance")) {
+        newAcc.areasOfFocus.substanceUse++;
+      }
+      if (analysis.contentTags.includes("risky")) {
+        newAcc.areasOfFocus.riskyBehavior++;
+      }
+      if (analysis.contentTags.includes("exclusion")) {
+        newAcc.areasOfFocus.socialExclusion++;
+      }
+
+      // Handle slang dictionary
+      analysis.contentTags.forEach((tag) => {
+        if (tag.match(/slang/)) {
+          // assuming `tag` can be a slang indicator
+          newAcc.slangDictionary[tag] = "Definition of " + tag; // Placeholder definition
+        }
       });
 
       if (index === array.length - 1) {
@@ -273,19 +280,40 @@ const processAnalysisResults = (analysisResults, startDate, endDate) => {
       return newAcc;
     }, initialReport);
 
-    // console.log("Report", report);
-
     const finalReport = calculateAverages(report, messages);
     finalReport.contentAnalysis.commonTags = getTopItems(
       finalReport.contentAnalysis.commonTags,
       10
     );
-    // console.log("Final Report", finalReport);
+
+    // Determine the most active time of day
+    const activeTime = Object.entries(
+      finalReport.contentAnalysis.chatActivity
+    ).sort(([, a], [, b]) => b - a)[0]?.[0];
+    finalReport.contentAnalysis.mostActiveTime = activeTime
+      ? `${activeTime}:00`
+      : "Unknown";
 
     return finalReport;
   } catch (err) {
     console.error(err);
   }
+};
+
+const calculateAverages = (report, divisor) => {
+  const newReport = { ...report };
+
+  newReport.communicationPatterns.averageFormality /= divisor;
+  newReport.communicationPatterns.styleMetrics.assertiveness /= divisor;
+  newReport.communicationPatterns.styleMetrics.openness /= divisor;
+  newReport.communicationPatterns.styleMetrics.engagement /= divisor;
+  newReport.psychologicalProfile.averageConfidence /= divisor;
+  newReport.psychologicalProfile.averageAnxiety /= divisor;
+  newReport.socialInteraction.averageCooperation /= divisor;
+  newReport.socialInteraction.averageDominance /= divisor;
+  newReport.socialInteraction.averageEmpathy /= divisor;
+
+  return newReport;
 };
 
 global.ai.generateReport = async (
@@ -297,14 +325,10 @@ global.ai.generateReport = async (
 ) => {
   try {
     const { data: messages, error } = await supabase
-      // .from(`messages_test_${tableId}`)
       .from("analysis_messages")
       .select("*")
       .eq("chat_id", chatId)
       .eq("sender_number", childNumber);
-    // .gte("created_at", startDate)
-    // .lte("created_at", endDate)
-    // .order("created_at", { ascending: true });
 
     if (error) throw error;
     if (messages.length === 0) {
@@ -321,14 +345,32 @@ global.ai.generateReport = async (
         });
       } catch (error) {
         console.error("Error analyzing message:", error);
-        // analysisResults.push({
-        //   ...msg,
-        //   analysis: null,
-        // });
       }
     }
 
-    return processAnalysisResults(analysisResults, startDate, endDate);
+    const numberOfParticipants = 0;
+    try {
+      const {
+        data: { member_count },
+        error,
+      } = await supabase
+        .from("consent_messages")
+        .select("member_count")
+        .eq("group_id", chatId)
+        .single();
+      if (member_count) {
+        numberOfParticipants = member_count;
+      }
+    } catch (err) {
+      console.error(err);
+    }
+
+    return processAnalysisResults(
+      analysisResults,
+      numberOfParticipants,
+      startDate,
+      endDate
+    );
   } catch (err) {
     console.error("Error generating report:", err);
     throw err;
