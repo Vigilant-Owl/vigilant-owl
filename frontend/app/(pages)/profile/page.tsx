@@ -5,9 +5,11 @@ import { Button, Input } from "@nextui-org/react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { createClient } from "@/utils/supabase/client";
+import { useRouter } from "next/navigation";
 
 const Profile = () => {
   const supabase = createClient();
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [profileData, setProfileData] = useState({
     firstName: "",
@@ -15,38 +17,40 @@ const Profile = () => {
     email: "",
   });
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        setLoading(true);
-        const { data: { session }, error } = await supabase.auth.getSession();
+  const fetchProfile = async () => {
+    try {
+      setLoading(true);
+      console.log("fetch profile");
+      const { data: { user }, error } = await supabase.auth.getUser();
+      console.log(user, error);
+      if (error) throw error;
+
+      if (user) {
+        const { data, error }: { data: any, error: any } = await supabase
+          .from("profiles")
+          .select("first_name, last_name, email")
+          .eq("id", user.id)
+          .single();
+
         if (error) throw error;
 
-        if (session) {
-          const { data, error }: { data: any, error: any } = await supabase
-            .from("profiles")
-            .select("first_name, last_name, email")
-            .eq("id", session.user.id)
-            .single();
-
-          if (error) throw error;
-
-          setProfileData({
-            firstName: data.first_name,
-            lastName: data.last_name,
-            email: data.email,
-          });
-        }
-      } catch (err: any) {
-        console.error(err);
-        toast.error("Failed to fetch profile data.");
-      } finally {
-        setLoading(false);
+        setProfileData({
+          firstName: data.first_name,
+          lastName: data.last_name,
+          email: data.email,
+        });
       }
-    };
+    } catch (err: any) {
+      console.error(err);
+      toast.error("Failed to fetch profile data.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchProfile();
-  }, [supabase]);
+  }, []);
 
   const handleUpdate = async (form: HTMLFormElement) => {
     try {
@@ -81,11 +85,12 @@ const Profile = () => {
 
   const handleResetPassword = async () => {
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(profileData.email, {
-        redirectTo: '/update-password',
-      })
-      if (error) throw error;
-      toast.success("Password reset email sent successfully.");
+      // const { error } = await supabase.auth.resetPasswordForEmail(profileData.email, {
+      //   redirectTo: `${process.env.NEXT_PUBLIC_SERVER_URL}/update-password`,
+      // })
+      // if (error) throw error;
+      router.replace("/update-password");
+      // toast.success("Password reset email sent successfully.");
     } catch (err: any) {
       console.error(err);
       toast.error("Failed to send reset password email.");

@@ -15,6 +15,7 @@ const UpdatePassword = () => {
   const [isVisible, setIsVisible] = useState(false);
 
   const handlePasswordUpdate = async (e: React.FormEvent) => {
+    setIsVisible(false);
     e.preventDefault();
 
     if (newPassword !== confirmPassword) {
