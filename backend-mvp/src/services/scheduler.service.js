@@ -64,3 +64,15 @@ cron.schedule("0 0 1 * *", async () => {
     console.error(err);
   }
 });
+
+cron.schedule("0 0 * * *", async () => {
+  try {
+    const { data, error } = await supabase.rpc("track_free_trial");
+    if (error) throw error;
+    if (data) {
+      console.log(data);
+    }
+  } catch (err) {
+    console.error(err);
+  }
+});
