@@ -30,7 +30,6 @@ export default function Home() {
       console.error(error);
     }
 
-    console.log(data);
     if (data) {
       setMessages(data as any[]);
     }

@@ -9,9 +9,11 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { isValidPhoneNumber } from 'react-phone-number-input'
 import PhoneNumberInput from "./PhoneNumberInput";
+import { useUserAuth } from "@/contexts/UserContext";
 
 const Install = () => {
   const supabase = createClient();
+  const { user } = useUserAuth();
   const { onClose, isOpen, onOpenChange, onOpen } = useDisclosure();
   const [loading, setLoading] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -19,8 +21,7 @@ const Install = () => {
 
   const handleInstall = async () => {
     try {
-      const { data: res } = await supabase.auth.getSession();
-      if (res.session) {
+      if (user?.id) {
 
         if (!title) {
           return toast.warning("Please input your title.");
@@ -33,7 +34,7 @@ const Install = () => {
         const data = {
           phoneNumber: realPhoneNumber,
           title,
-          parentId: res.session?.user.id
+          parentId: user.id
         }
 
         setLoading(true);
@@ -60,16 +61,14 @@ const Install = () => {
 
   const handleOpen = async () => {
     try {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      if (error) throw error;
-      if (session?.user.id) {
-        const { data, error }: { data: any, error: any } = await supabase.from("profiles").select("*").eq("id", session.user.id).single();
+      if (user?.id) {
+        const { data, error }: { data: any, error: any } = await supabase.from("profiles").select("*").eq("id", user.id).single();
         if (error) throw error;
         if (data) {
           if (data?.subscription_status === "active") {
             onOpen();
           } else if (data?.free_trial) {
-            const { data: groups, error } = await supabase.from('consent_messages').select("*").eq("parent_id", session.user.id)
+            const { data: groups, error } = await supabase.from('consent_messages').select("*").eq("parent_id", user.id)
             if (error) throw error;
             if (groups.length > 0) {
               return toast.warning("During the free trial period, you can install the service on one device.");

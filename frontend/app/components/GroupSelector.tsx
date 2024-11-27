@@ -5,9 +5,11 @@ import { useEffect, useState } from "react";
 import { Button, Select, SelectItem } from "@nextui-org/react";
 import { createClient } from "@/utils/supabase/client";
 import { toast } from "sonner";
+import { useUserAuth } from "@/contexts/UserContext";
 
 const GroupSelector = ({ onGetReport, loading }: { onGetReport: (table: string, phoneNumber: string) => void, loading: boolean }) => {
   const supabase = createClient();
+  const { user } = useUserAuth();
 
   const [groups, setGroups] = useState([]);
   // const [phoneNumbers, setPhoneNumbers] = useState([]);
@@ -23,10 +25,9 @@ const GroupSelector = ({ onGetReport, loading }: { onGetReport: (table: string, 
 
   const handleGetGroupData = async () => {
     try {
-      const { data: res } = await supabase.auth.getSession();
-      if (res.session) {
+      if (user?.id) {
         setGroupLoading(true);
-        const { data, error } = await supabase.rpc("get_group_data", { user_id: res.session?.user.id });
+        const { data, error } = await supabase.rpc("get_group_data", { user_id: user.id });
         if (error) {
           throw error;
         }
@@ -51,10 +52,9 @@ const GroupSelector = ({ onGetReport, loading }: { onGetReport: (table: string, 
 
   // const handleGetPhoneNumbers = async () => {
   //   try {
-  //     const { data: res } = await supabase.auth.getSession();
-  //     if (res.session) {
+  //     if (user?.id) {
   //       setPhoneNumberLoading(true);
-  //       const { data, error } = await supabase.rpc("get_phone_number_data", { user_id: res.session?.user.id, group_id: groupId });
+  //       const { data, error } = await supabase.rpc("get_phone_number_data", { user_id: user.id, group_id: groupId });
   //       if (error) {
   //         throw error;
   //       }

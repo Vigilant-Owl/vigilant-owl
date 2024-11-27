@@ -13,13 +13,13 @@ import NavbarMenus from "./NavbarMenus";
 import Login from "../components/Login";
 import Register from "../components/Register";
 import { lato, roboto } from "../fonts";
-import { UserData } from "@/types";
 import logoImage from "@/assets/logo.webp";
+import { useUserAuth } from "@/contexts/UserContext";
 
 const Header = () => {
   const supabase = createClient();
   const pathname = usePathname();
-  const [user, setUser] = useState<UserData | null>(null);
+  const { user, setUser } = useUserAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -48,17 +48,18 @@ const Header = () => {
 
       if (error) throw error;
 
-      const user: UserData = {
+      const user = {
         firstName: profile?.first_name || 'User',
         lastName: profile?.last_name || '',
         email: profile?.email,
+        id: userId,
       }
       setUser(user);
     } catch (error) {
       console.error(error);
       toast.error("Failed to fetch user profile");
     }
-  }, [supabase]);
+  }, [setUser, supabase]);
 
   const handleAuthStateChange = useCallback(async (event: string) => {
     if (event === "SIGNED_OUT") {
@@ -78,7 +79,7 @@ const Header = () => {
         setUser(null);
       }
     }
-  }, [fetchUserProfile, supabase.auth]);
+  }, [fetchUserProfile, setUser, supabase.auth]);
 
   const clearStorage = () => {
     [window.localStorage, window.sessionStorage].forEach((storage) => {
@@ -105,7 +106,7 @@ const Header = () => {
     fetchCurrentUser();
     const { data: { subscription } } = supabase.auth.onAuthStateChange(handleAuthStateChange);
     return () => subscription.unsubscribe();
-  }, [fetchUserProfile, handleAuthStateChange, supabase.auth]);
+  }, [fetchUserProfile, handleAuthStateChange, setUser, supabase.auth]);
 
   const handleLogOut = async () => {
     try {

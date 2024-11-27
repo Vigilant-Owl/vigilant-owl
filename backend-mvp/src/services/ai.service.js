@@ -348,7 +348,7 @@ global.ai.generateReport = async (
       }
     }
 
-    const numberOfParticipants = 0;
+    let numberOfParticipants = 0;
     try {
       const {
         data: { member_count },

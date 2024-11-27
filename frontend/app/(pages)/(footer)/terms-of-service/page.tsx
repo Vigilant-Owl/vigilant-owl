@@ -4,19 +4,20 @@ const PrivacyPolicy = () => {
   return (
     <div className="space-y-4 min-h-screen w-full p-4">
       <h1 className="text-2xl font-bold text-white">Terms of Service</h1>
+      <p className="text-gray-300 text-base">{`Welcome to Vigilant Owl, an AI-powered digital safety service designed to help parents understand their children's online group interactions. By accessing or using our website and services, you agree to comply with and be bound by these Terms of Service ("Terms").`}</p>
 
       <section className="space-y-2">
         <h2 className="text-xl font-semibold text-gray-100">1. Introduction</h2>
         <p className="text-gray-300 text-base">
-          {`Welcome to Vigilant Owl, an AI-powered digital safety service designed to help parents understand their children's online group interactions. These Terms of Service ("Terms") govern your use of Vigilant Owl's website and services. By using Vigilant Owl, you agree to these terms and our commitment to balancing digital safety with privacy and independence.`}
+          {`Vigilant Owl is a brand of Andrea Cintra Stelin D'Ambrosio, operating as a sole proprietorship registered in Switzerland. Our mission is to provide parents with insights into their children's online interactions while prioritizing privacy and independence.`}
         </p>
       </section>
 
       <section className="space-y-2">
-        <h2 className="text-xl font-semibold text-gray-100">2. Service Description</h2>
+        <h2 className="text-xl font-semibold text-gray-100">2. Services Provided</h2>
         <ul className="list-disc pl-6 space-y-2 text-gray-300 text-base">
           <li>
-            <span className="font-medium text-gray-200">AI Monitoring:</span> Vigilant Owl provides AI-driven insights into group conversations on platforms like WhatsApp, Discord, Roblox, and other supported platforms.
+            <span className="font-medium text-gray-200">AI Monitoring:</span> We offer AI-driven insights into group conversations on platforms such as WhatsApp, Discord, and Roblox.
           </li>
           <li>
             <span className="font-medium text-gray-200">Privacy-First Approach:</span> Our service captures only conversation sentiment and general trends, not specific messages or personal communications.
@@ -63,11 +64,11 @@ const PrivacyPolicy = () => {
           Users agree not to:
         </p>
         <ul className="list-disc pl-6 space-y-2 text-gray-300 text-base">
-          <li>Use the service for unauthorized surveillance or monitoring without consent</li>
-          <li>Attempt to bypass or compromise our privacy protection measures</li>
-          <li>Share access to your account with unauthorized users</li>
-          <li>Use the service for any illegal or harmful purposes</li>
-          <li>Attempt to reverse engineer or extract data from our AI systems</li>
+          <li>Use the service for unauthorized surveillance or monitoring without consent.</li>
+          <li>Attempt to bypass or compromise our privacy protection measures.</li>
+          <li>Share access to your account with unauthorized users.</li>
+          <li>Use the service for any illegal or harmful purposes.</li>
+          <li>Attempt to reverse engineer or extract data from our AI systems.</li>
         </ul>
       </section>
 
@@ -78,8 +79,7 @@ const PrivacyPolicy = () => {
             <span className="font-medium text-gray-200">AI Analysis:</span> Our service provides insights based on AI analysis and may not capture every nuance of human communication.
           </li>
           <li>
-            <span className="font-medium text-gray-200">Platform Support:</span> We support specific platforms and may not be compatible with all messaging services.
-          </li>
+            <span className="font-medium text-gray-200">Platform Support:</span> We support specific platforms and may not be compatible with all messaging services.</li>
           <li>
             <span className="font-medium text-gray-200">No Guarantee:</span> While we strive for accuracy, we cannot guarantee the detection of all concerning content or behaviors.
           </li>
@@ -108,11 +108,77 @@ const PrivacyPolicy = () => {
       </section>
 
       <section className="space-y-2">
-        <h2 className="text-xl font-semibold text-gray-100">10. Contact Information</h2>
+        <h2 className="text-xl font-semibold text-gray-100">10. Business Information</h2>
         <p className="text-gray-300 text-base">
-          For questions about these Terms of Service or our privacy practices, please contact us at <Link className="underline text-blue-400 hover:text-blue-600 transition-all" href=" mailto:marco@vigilant-owl.org">marco@vigilant-owl.org</Link>
+          {`Vigilant Owl is a brand of Andrea Cintra Stelin D'Ambrosio, operating as a sole proprietorship registered in Switzerland.`}
         </p>
       </section>
+
+      <section className="space-y-2">
+        <h2 className="text-xl font-semibold text-gray-100">11. Customer Service Contact Details</h2>
+        <p className="text-gray-300 text-base">
+          For any inquiries or support, please contact us at: <Link className="underline text-blue-400 hover:text-blue-600 transition-all" href="mailto:info@vigilant-owl.org">info@vigilant-owl.org</Link>
+        </p>
+      </section>
+
+      <section className="space-y-2">
+        <h2 className="text-xl font-semibold text-gray-100">12. Policies</h2>
+        <ul className="list-disc pl-6 space-y-2 text-gray-300 text-base">
+          <li>
+            <span className="font-medium text-gray-200">Refund Policy:</span> Refunds are available within 30 days of purchase if you are not satisfied with our service.
+          </li>
+          <li>
+            <span className="font-medium text-gray-200">Cancellation Policy:</span> You may cancel your subscription at any time through your account settings.</li>
+          <li>
+            <span className="font-medium text-gray-200">Legal Restrictions:</span> Our services comply with Swiss laws and are not available in regions where such services are prohibited.
+          </li>
+          <li>
+            <span className="font-medium text-gray-200">Promotional Terms:</span> Promotional offers are subject to change and are valid for new customers only.
+          </li>
+        </ul>
+      </section>
+
+      <section className="space-y-2">
+        <h2 className="text-xl font-semibold text-gray-100">13. Privacy Policy</h2>
+        <p className="text-gray-300 text-base">
+          Please refer to our Privacy Policy for information on how we collect, use, and protect your personal information.
+        </p>
+      </section>
+
+      <section className="space-y-2">
+        <h2 className="text-xl font-semibold text-gray-100">14. Cookie Policy</h2>
+        <p className="text-gray-300 text-base">
+          This website uses cookies to enhance your browsing experience. For more information, please see our <Link className="underline text-blue-400 hover:text-blue-600 transition-all" href="/cookie-policy">Cookie Policy</Link>.
+        </p>
+      </section>
+
+      <section className="space-y-2">
+        <h2 className="text-xl font-semibold text-gray-100">15. Changes to These Terms</h2>
+        <p className="text-gray-300 text-base">
+          We may update these Terms periodically. If we make material changes, we will notify you by updating the effective date and posting the revised Terms on this page.
+        </p>
+      </section>
+
+      <section className="space-y-2">
+        <h2 className="text-xl font-semibold text-gray-100">16. Governing Law</h2>
+        <p className="text-gray-300 text-base">
+          These Terms are governed by the laws of Switzerland.
+        </p>
+      </section>
+
+      <section className="space-y-2">
+        <h2 className="text-xl font-semibold text-gray-100">17. Contact Information</h2>
+        <p className="text-gray-300 text-base">
+          For questions about these Terms of Service or our privacy practices, please contact us at <Link className="underline text-blue-400 hover:text-blue-600 transition-all" href="mailto:info@vigilant-owl.org">info@vigilant-owl.org</Link>.
+        </p>
+      </section>
+
+      <section className="space-y-2">
+        <p className="text-gray-300 text-base">
+          By using Vigilant Owl, you acknowledge that you have read, understood, and agree to be bound by these Terms.
+        </p>
+      </section>
+
     </div >
   );
 }

@@ -20,9 +20,7 @@ const Profile = () => {
   const fetchProfile = async () => {
     try {
       setLoading(true);
-      console.log("fetch profile");
       const { data: { user }, error } = await supabase.auth.getUser();
-      console.log(user, error);
       if (error) throw error;
 
       if (user) {

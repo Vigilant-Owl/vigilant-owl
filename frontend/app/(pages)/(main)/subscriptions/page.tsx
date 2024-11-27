@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { loadStripe } from '@stripe/stripe-js';
 import PlanCard from "@/components/PlanCard";
 import { cancelSubscription, checkout } from "@/apis/stripe";
 import { toast } from "sonner";
 import { createClient } from "@/utils/supabase/client";
+import { useUserAuth } from "@/contexts/UserContext";
 
 const PRICE_IDS = {
   // free: "price_1QNGGnRoMLPC6yHCd7Axnp7Z",
@@ -14,6 +15,7 @@ const PRICE_IDS = {
 };
 
 const PricingPlans = () => {
+  const { user } = useUserAuth();
   const supabase = createClient();
   const [selectedPlanIndex, setSelectedPlanIndex] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -62,13 +64,10 @@ const PricingPlans = () => {
     },
   ];
 
-  const handleGetInitialData = async () => {
+  const handleGetInitialData = useCallback(async () => {
     try {
-
-      const { data: { session }, error } = await supabase.auth.getSession();
-      if (error) throw error;
-      if (session?.user.id) {
-        const { data, error }: { data: any, error: any } = await supabase.from("profiles").select("*").eq("id", session?.user.id).single();
+      if (user?.id) {
+        const { data, error }: { data: any, error: any } = await supabase.from("profiles").select("*").eq("id", user.id).single();
         if (error) throw error;
         if (data) {
           setPossibleFreeTrial(data?.free_trial !== false);
@@ -94,25 +93,21 @@ const PricingPlans = () => {
       console.error(err);
       toast.error(err.message);
     }
-  };
+  }, [supabase, user]);
 
   useEffect(() => {
     handleGetInitialData();
-  }, []);
+  }, [handleGetInitialData]);
 
   const handleSubscribe = async (priceId: string | null) => {
     try {
       if (!priceId) {
-        const { data: { session }, error } = await supabase.auth.getSession();
+        const { error }: { data: any, error: any } = await supabase.from("profiles").update({
+          free_trial: true,
+          subscription_date: new Date()
+        }).eq("id", user?.id);
         if (error) throw error;
-        if (session?.user.id) {
-          const { error }: { data: any, error: any } = await supabase.from("profiles").update({
-            free_trial: true,
-            subscription_date: new Date()
-          }).eq("id", session.user.id);
-          if (error) throw error;
-          toast.success("Start the free trial successfully.");
-        }
+        toast.success("Start the free trial successfully.");
         return;
       }
 
@@ -151,11 +146,9 @@ const PricingPlans = () => {
 
   const handleCancelSubscribe = async (index: number) => {
     try {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      if (error) throw error;
-      if (session?.user.id) {
+      if (user?.id) {
         if (index === 0) {
-          const { error } = await supabase.from("profiles").update({ free_trial: false }).eq("id", session?.user.id);
+          const { error } = await supabase.from("profiles").update({ free_trial: false }).eq("id", user.id);
           if (error) throw error;
           setPossibleFreeTrial(false);
           return;

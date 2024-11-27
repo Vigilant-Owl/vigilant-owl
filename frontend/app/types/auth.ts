@@ -11,8 +11,9 @@ export interface RegisterData {
   confirmPassword?: string;
 }
 
-export interface UserData {
-  email: string | null;
-  firstName: string | null;
-  lastName: string | null;
+export interface User {
+  id?: string;
+  firstName: string;
+  lastName: string;
+  email: string;
 }

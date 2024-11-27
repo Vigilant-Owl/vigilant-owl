@@ -21,6 +21,7 @@ import { toast } from "sonner";
 import { createClient } from "@/utils/supabase/client";
 import Link from "next/link";
 import GroupSelector from "@/components/GroupSelector";
+import { useUserAuth } from "@/contexts/UserContext";
 
 const Reports = () => {
   const mockupData = {
@@ -132,6 +133,7 @@ const Reports = () => {
   const [loading, setLoading] = useState(false);
   const [isData, setIsData] = useState(false);
   const [groupId, setGroupId] = useState("");
+  const { user } = useUserAuth();
 
   const handleGetReport = useCallback(async (payload: any) => {
     try {
@@ -152,10 +154,8 @@ const Reports = () => {
     try {
       setGroupId(groupId);
       setLoading(true);
-      const { data: session, error } = await supabase.auth.getSession();
-      if (error) throw error;
-      if (session.session) {
-        const { data, error } = await supabase.from("reports").select("*").eq("parent_id", session.session.user.id).eq("group_id", groupId);
+      if (user?.id) {
+        const { data, error } = await supabase.from("reports").select("*").eq("parent_id", user.id).eq("group_id", groupId);
         if (error) throw error;
         if (data.length) {
           const report: any = data[0];

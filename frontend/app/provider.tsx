@@ -2,6 +2,7 @@ import 'react-phone-number-input/style.css'
 import { NextUIProvider } from "@nextui-org/react";
 import { Toaster } from "sonner";
 import React from "react";
+import UserProvider from './contexts/UserContext';
 
 const Provider = ({ children }: Readonly<{
   children: React.ReactNode;
@@ -11,7 +12,9 @@ const Provider = ({ children }: Readonly<{
       <NextUIProvider>
         <Toaster position="top-right" />
         <div className="flex flex-col min-h-screen w-full items-center justify-items-center text-opacity-80">
-          {children}
+          <UserProvider>
+            {children}
+          </UserProvider>
         </div>
       </NextUIProvider>
     </React.StrictMode>
