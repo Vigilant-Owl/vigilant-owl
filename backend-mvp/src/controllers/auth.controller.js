@@ -81,7 +81,7 @@ module.exports = {
     try {
       const { currentPassword, newPassword } = req.body;
       console.log(currentPassword, newPassword);
-      const { data, error } = await supabase.rpc("reset-password", {
+      const { data, error } = await supabase.rpc("change_password", {
         current_password: currentPassword,
         new_password: newPassword,
       });

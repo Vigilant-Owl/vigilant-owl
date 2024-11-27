@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from "axios";
 import { LoginData, RegisterData } from "../types";
 import { getAuthToken } from "@/utils/tokenUtils";
@@ -38,7 +39,8 @@ export const apiResetPassword = async (data: {
       },
     });
     return response.data;
-  } catch (error) {
-    console.error(error);
+  } catch (err: any) {
+    console.error(err);
+    return err.response.data;
   }
 };
