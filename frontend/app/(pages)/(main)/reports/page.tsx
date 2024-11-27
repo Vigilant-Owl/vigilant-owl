@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 import { getReport } from "@/apis/report";
-import { Card, CardBody, CardHeader, Spinner } from "@nextui-org/react";
+import { Card, CardBody, CardHeader, Spinner, Button, Select, SelectItem } from "@nextui-org/react";
 import { XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import {
   BiMessageDetail,
@@ -20,13 +20,12 @@ import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { createClient } from "@/utils/supabase/client";
 import Link from "next/link";
-import GroupSelector from "@/components/GroupSelector";
 import { useUserAuth } from "@/contexts/UserContext";
 
 const Reports = () => {
   const mockupData = {
     "metadata": {
-      "totalMessages": 12,
+      "totalMessages": 10,
       "timespan": {
         "startDate": "2024-11-10",
         "endDate": "2024-11-12"
@@ -112,6 +111,9 @@ const Reports = () => {
       "messageFrequency": {
         "2024-11-11": 12
       },
+      "chatActivity": {
+        "14": 10
+      },
       "mostActiveTime": "14:00"
     },
     "areasOfFocus": {
@@ -134,6 +136,13 @@ const Reports = () => {
   const [isData, setIsData] = useState(false);
   const [groupId, setGroupId] = useState("");
   const { user } = useUserAuth();
+  const [groupIndex, setGroupIndex] = useState(0);
+  const [group, setGroup] = useState({
+    group_id: "",
+    title: "",
+    phone_number: ""
+  });
+  const [groups, setGroups] = useState([]);
 
   const handleGetReport = useCallback(async (payload: any) => {
     try {
@@ -150,10 +159,9 @@ const Reports = () => {
     }
   }, [groupId]);
 
-  const handleGetReportByRequest = async (groupId: string, phoneNumber: string) => {
+  const handleGetReportByRequest = useCallback(async (groupId: string, phoneNumber: string) => {
     try {
       setGroupId(groupId);
-      setLoading(true);
       if (user?.id) {
         const { data, error } = await supabase.from("reports").select("*").eq("parent_id", user.id).eq("group_id", groupId);
         if (error) throw error;
@@ -170,8 +178,6 @@ const Reports = () => {
             return toast.error(response.message);
           }
         }
-      } else {
-        return toast.error("Please sign in first.");
       }
     } catch (err: any) {
       console.error(err);
@@ -179,14 +185,39 @@ const Reports = () => {
     } finally {
       setLoading(false);
     }
-  }
+  }, [supabase, user]);
+
+  const handleGetGroupData = useCallback(async () => {
+    try {
+      if (user?.id) {
+        setLoading(true);
+        const { data, error } = await supabase.rpc("get_group_data", { user_id: user.id });
+        if (error) {
+          throw error;
+        }
+        setGroups(data);
+        if (data.length) {
+          setGroupIndex(0);
+          setGroup(data[0]);
+          handleGetReportByRequest(data[0].group_id, data[0].phone_number);
+        } else {
+          toast.error("You didn't install the service or there is no data.");
+        }
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }, [supabase, user]);
 
   useEffect(() => {
+    handleGetGroupData();
     const channel = supabase.channel("reports_channel").on("postgres_changes", { event: "*", schema: "public", table: "reports" }, handleGetReport).subscribe();
     return () => {
       channel.unsubscribe();
     }
-  }, [handleGetReport, supabase]);
+  }, [handleGetGroupData, handleGetReport, supabase]);
 
   const getEmotionIcon = (emotion: any) => {
     const iconProps = { className: "w-6 h-6 text-yellow-500" };
@@ -221,7 +252,61 @@ const Reports = () => {
 
     return (
       <div className="flex flex-col gap-4 w-full">
-        <GroupSelector onGetReport={handleGetReportByRequest} loading={loading} />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-center px-4 w-full min-w-fit">
+          <Select
+            disallowEmptySelection
+            isRequired
+            label="Select group"
+            className="w-full min-w-60"
+            selectedKeys={[`${groupIndex}`]}
+            onSelectionChange={(keys: any) => {
+              const [value] = keys;
+              setGroupIndex(value);
+              setGroup(groups[value]);
+            }}
+            defaultSelectedKeys={["None"]}
+            isDisabled={loading}
+          >
+            {groups.map((group: any, index: number) => (
+              <SelectItem key={index}>
+                {`${group.title} (${group.group_id})`}
+              </SelectItem>
+            ))}
+          </Select>
+          <Select
+            disallowEmptySelection
+            isRequired
+            isDisabled={loading}
+            label="Select phone number"
+            className="w-full min-w-48"
+            selectedKeys={[group.phone_number]}
+            defaultSelectedKeys={["None"]}
+          // onSelectionChange={(keys: any) => {
+          //   const [value] = keys;
+          //   setPhoneNumber(value);
+          // }}
+          >
+            <SelectItem key={group.phone_number}>
+              {group.phone_number}
+            </SelectItem>
+            {/* {phoneNumbers.map(phoneNumber => (
+          <SelectItem key={phoneNumber}>
+            {phoneNumber}
+          </SelectItem>
+        ))} */}
+          </Select>
+          <Button color="primary" isLoading={loading} onClick={() => {
+            if (group.group_id == "") {
+              return toast.error("Please select the group.");
+            }
+            if (group.phone_number == "") {
+              return toast.error("Please select the child's phone number.");
+            }
+            handleGetReportByRequest(group.group_id, group.phone_number);
+          }}>
+            Get Report
+          </Button>
+        </div >
         {loading ? <Spinner /> :
           (!isData ?
             <div className="flex flex-col gap-4 text-center">

@@ -10,6 +10,9 @@ const SYSTEM_PROMPT = {
 2. Communication style
 3. Psychological markers
 4. Social dynamics
+5. Identify focus areas such as bullying, harassment, anxiety, stress, inappropriate content, substance use, risky behavior, and social exclusion.
+   - Use relevant keywords and context clues to determine the presence of these focus areas.
+   - Provide a confidence score (1-10) for each identified focus area.
 
 Provide a JSON response with the following structure:
 {
@@ -31,7 +34,18 @@ Provide a JSON response with the following structure:
     "dominance": number (1-10),
     "empathy": number (1-10)
   },
-  "contentTags": string[]
+  "contentTags": string[],
+  "identifiedSlang": { 
+    "slangTerm": "Definition of the slang term",
+  },
+  "focusAreas": {
+    "bullyingHarassment": number (1-10),
+    "anxietyStress": number (1-10),
+    "inappropriateContent": number (1-10),
+    "substanceUse": number (1-10),
+    "riskyBehavior": number (1-10),
+    "socialExclusion": number (1-10)
+  }
 }`,
 };
 
@@ -144,6 +158,7 @@ const processAnalysisResults = (
         totalMessages: messages,
         timespan: { startDate, endDate },
         analysisTimestamp: new Date().toISOString(),
+        numberOfParticipants,
       },
       emotionalAnalysis: {
         primaryEmotions: {},
@@ -222,11 +237,21 @@ const processAnalysisResults = (
 
       newAcc.sentimentAnalysis.distribution[analysis.sentiment]++;
 
-      // Count sentiment changes
-      newAcc.sentimentAnalysis.sentimentTrend.push({
-        timestamp: result.created_at,
-        sentiment: analysis.sentiment,
-      });
+      // Update sentiment trend
+      const date = new Date(result.created_at).toISOString().split("T")[0];
+      const trendItem = newAcc.sentimentAnalysis.sentimentTrend.find(
+        (item) => item.date === date
+      );
+      if (trendItem) {
+        trendItem[analysis.sentiment]++;
+      } else {
+        newAcc.sentimentAnalysis.sentimentTrend.push({
+          date,
+          positive: analysis.sentiment === "positive" ? 1 : 0,
+          neutral: analysis.sentiment === "neutral" ? 1 : 0,
+          negative: analysis.sentiment === "negative" ? 1 : 0,
+        });
+      }
 
       analysis.contentTags?.forEach((tag) => {
         newAcc.contentAnalysis.commonTags[tag] =
@@ -277,6 +302,24 @@ const processAnalysisResults = (
           sentimentChanges / (array.length - 1);
       }
 
+      try {
+        Object.entries(analysis.identifiedSlang).forEach(
+          ([slang, definition]) => {
+            newAcc.slangDictionary[slang] = definition;
+          }
+        );
+      } catch (err) {
+        console.error(err);
+      }
+
+      try {
+        Object.keys(analysis.focusAreas).forEach((area) => {
+          newAcc.areasOfFocus[area] += analysis.focusAreas[area];
+        });
+      } catch (err) {
+        console.error(err);
+      }
+
       return newAcc;
     }, initialReport);
 
@@ -293,6 +336,10 @@ const processAnalysisResults = (
     finalReport.contentAnalysis.mostActiveTime = activeTime
       ? `${activeTime}:00`
       : "Unknown";
+
+    Object.keys(report.areasOfFocus).forEach((area) => {
+      report.areasOfFocus[area] /= analysisResults.length;
+    });
 
     return finalReport;
   } catch (err) {

@@ -1,5 +1,6 @@
 import axios from "axios";
 import { LoginData, RegisterData } from "../types";
+import { getAuthToken } from "@/utils/tokenUtils";
 
 const apiBaseUrl =
   process.env.NEXT_PUBLIC_SERVER_API || "http://localhost:8000/api";
@@ -18,6 +19,24 @@ export const apiLoginUser = async (data: LoginData) => {
 export const apiRegisterUser = async (data: RegisterData) => {
   try {
     const response = await axios.post(`${apiUrl}/register`, data);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+export const apiResetPassword = async (data: {
+  currentPassword: string;
+  newPassword: string;
+}) => {
+  try {
+    const token = getAuthToken();
+
+    const response = await axios.post(`${apiUrl}/reset-password`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return response.data;
   } catch (error) {
     console.error(error);

@@ -5,11 +5,12 @@ import { useState } from "react";
 import { Button, Input } from "@nextui-org/react";
 import { toast } from "sonner";
 import { IoMdEye, IoMdEyeOff } from "react-icons/io";
-import { createClient } from "@/utils/supabase/client";
+import { apiResetPassword } from "@/apis/auth";
+import { ResponseData } from "@/types";
 
 const UpdatePassword = () => {
-  const supabase = createClient();
   const [loading, setLoading] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isVisible, setIsVisible] = useState(false);
@@ -18,6 +19,9 @@ const UpdatePassword = () => {
     setIsVisible(false);
     e.preventDefault();
 
+    if (!currentPassword) {
+      return toast.error("Please input the current password.");
+    }
     if (newPassword !== confirmPassword) {
       return toast.error("Passwords do not match");
     }
@@ -25,16 +29,14 @@ const UpdatePassword = () => {
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.updateUser({
-        password: newPassword,
-      });
+      const response: ResponseData = await apiResetPassword({ currentPassword, newPassword });
 
-      if (error) {
-        throw error;
+      console.log(response);
+      if (response && response.status === "success") {
+        return toast.success("Password updated successfully!");
       }
 
-      toast.success("Password updated successfully!");
-      await supabase.auth.signOut();
+      toast.error(response.message);
     } catch (err: any) {
       console.error(err);
       toast.error(err.message);
@@ -48,6 +50,16 @@ const UpdatePassword = () => {
       <h2>Update Password</h2>
       <form onSubmit={handlePasswordUpdate}>
         <div className="flex flex-col gap-2 min-w-[280px]">
+          <Input
+            type="password"
+            variant="flat"
+            label="Current Password"
+            placeholder="Enter your current password"
+            value={currentPassword}
+            onChange={(e) => setCurrentPassword(e.target.value)}
+            isDisabled={loading}
+            isRequired
+          />
           <Input
             type={isVisible ? "text" : "password"}
             variant="flat"

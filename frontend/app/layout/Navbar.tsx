@@ -6,7 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 import { FiBarChart2, FiFileText, FiSettings, FiHelpCircle, FiUser, FiLogOut } from "react-icons/fi";
 import { Navbar, NavbarBrand, NavbarContent, User, NavbarMenuToggle, NavbarMenu, Dropdown, DropdownTrigger, DropdownItem, DropdownMenu, Button } from "@nextui-org/react";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { createClient } from "@/utils/supabase/client";
 import NavbarMenus from "./NavbarMenus";
@@ -18,6 +18,7 @@ import { useUserAuth } from "@/contexts/UserContext";
 
 const Header = () => {
   const supabase = createClient();
+  const router = useRouter();
   const pathname = usePathname();
   const { user, setUser } = useUserAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -209,10 +210,13 @@ const Header = () => {
             <DropdownMenu
               aria-label="User actions"
             >
-              <DropdownItem key="profile">
-                <Link href="/profile" className="flex items-center gap-2 text-default-900">
+              <DropdownItem key="profile" onClick={() => {
+                console.log("Profile clicked");
+                router.replace("/profile")
+              }}>
+                <div className="flex items-center gap-2 text-default-900">
                   <FiUser /> Profile
-                </Link>
+                </div>
               </DropdownItem>
               <DropdownItem
                 key="sign-out"

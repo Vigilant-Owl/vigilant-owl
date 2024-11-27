@@ -6,9 +6,11 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
+import { useUserAuth } from "@/contexts/UserContext";
 
 const Profile = () => {
   const supabase = createClient();
+  const { user } = useUserAuth();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [profileData, setProfileData] = useState({
@@ -17,38 +19,11 @@ const Profile = () => {
     email: "",
   });
 
-  const fetchProfile = async () => {
-    try {
-      setLoading(true);
-      const { data: { user }, error } = await supabase.auth.getUser();
-      if (error) throw error;
-
-      if (user) {
-        const { data, error }: { data: any, error: any } = await supabase
-          .from("profiles")
-          .select("first_name, last_name, email")
-          .eq("id", user.id)
-          .single();
-
-        if (error) throw error;
-
-        setProfileData({
-          firstName: data.first_name,
-          lastName: data.last_name,
-          email: data.email,
-        });
-      }
-    } catch (err: any) {
-      console.error(err);
-      toast.error("Failed to fetch profile data.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchProfile();
-  }, []);
+    if (user) {
+      setProfileData(user);
+    }
+  }, [user]);
 
   const handleUpdate = async (form: HTMLFormElement) => {
     try {
