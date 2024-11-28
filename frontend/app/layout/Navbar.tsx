@@ -132,13 +132,14 @@ const Header = () => {
     <Navbar
       isBordered
       className={navbarClassName}
+      isMenuOpen={isMenuOpen}
+      onMenuOpenChange={setIsMenuOpen}
     >
       {/* Mobile Brand and Toggle */}
       <NavbarContent className="sm:hidden" justify="start">
         <NavbarMenuToggle
           aria-label={isMenuOpen ? "Close menu" : "Open menu"}
           className="text-default-500"
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
         />
         <NavbarBrand>
           <Link
@@ -283,8 +284,8 @@ const Header = () => {
             </div>
           ) : (
             <div className="flex flex-col gap-2">
-              <Login />
-              <Register />
+              <Login onClick={() => setIsMenuOpen(false)} />
+              <Register onClick={() => setIsMenuOpen(false)} />
             </div>
           )}
         </div>

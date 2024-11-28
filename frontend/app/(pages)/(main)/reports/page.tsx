@@ -2,7 +2,7 @@
 "use client"
 import { getReport } from "@/apis/report";
 import { Card, CardBody, CardHeader, Spinner, Button, Select, SelectItem } from "@nextui-org/react";
-import { XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import { XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line, Legend } from 'recharts';
 import {
   BiMessageDetail,
   BiHeart,
@@ -124,6 +124,11 @@ const Reports = () => {
       "riskyBehavior": 0,
       "socialExclusion": 0
     },
+    "focusAreaByDate": [
+      { date: "2024-11-10", bullyingHarassment: 1, anxietyStress: 2, inappropriateContent: 0, substanceUse: 0, riskyBehavior: 1, socialExclusion: 0 },
+      { date: "2024-11-11", bullyingHarassment: 0, anxietyStress: 1, inappropriateContent: 1, substanceUse: 1, riskyBehavior: 0, socialExclusion: 1 },
+      { date: "2024-11-12", bullyingHarassment: 2, anxietyStress: 0, inappropriateContent: 2, substanceUse: 0, riskyBehavior: 1, socialExclusion: 0 },
+    ],
     "slangDictionary": {
       "GOAT": "Greatest Of All Time",
       "KYS": "Kill Yourself"
@@ -377,13 +382,18 @@ const Reports = () => {
                   <CardBody>
                     <div className="h-72">
                       <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={data.sentimentAnalysis.sentimentTrend}>
+                        <LineChart data={data.sentimentAnalysis.sentimentTrend.map((trend: any) => ({
+                          ...trend,
+                          negative: -trend.negative,
+                          state: trend.positive - trend.negative
+                        }))}>
                           <XAxis dataKey="date" />
                           <YAxis />
                           <Tooltip />
-                          <Bar dataKey="positive" fill="#3b82f6" />
-                          <Bar dataKey="negative" fill="#ef4444" />
-                        </BarChart>
+                          {/* <Line type="monotone" dataKey="positive" stroke="#3b82f6" />
+                          <Line type="monotone" dataKey="negative" stroke="#ef4444" /> */}
+                          <Line type="monotone" dataKey="state" stroke="#3b82f6" />
+                        </LineChart>
                       </ResponsiveContainer>
                     </div>
                   </CardBody>
@@ -421,19 +431,25 @@ const Reports = () => {
                 <CardHeader className="pb-0 pt-6 px-4">
                   <div className="flex items-center space-x-2">
                     <MdOutlineInterests className="w-6 h-6 text-green-500" />
-                    <h4 className="text-xl font-bold text-white">Areas of Focus</h4>
+                    <h4 className="text-xl font-bold text-white">Areas of Focus by Date</h4>
                   </div>
                 </CardHeader>
                 <CardBody>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {Object.entries<number>(data.areasOfFocus).map(([focusArea, count]) => (
-                      <div key={focusArea} className="flex items-center space-x-2 bg-gray-700 p-4 rounded-lg">
-                        <div>
-                          <p className="text-gray-300 capitalize">{focusArea}</p>
-                          <p className="text-lg font-bold text-white">{count}</p>
-                        </div>
-                      </div>
-                    ))}
+                  <div className="h-72">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={data.focusAreaByDate}>
+                        <XAxis dataKey="date" />
+                        <YAxis />
+                        <Tooltip />
+                        <Legend />
+                        <Line type="monotone" dataKey="bullyingHarassment" stroke="#8884d8" name="Bullying Harassment" />
+                        <Line type="monotone" dataKey="anxietyStress" stroke="#82ca9d" name="Anxiety & Stress" />
+                        <Line type="monotone" dataKey="inappropriateContent" stroke="#ffc658" name="Inappropriate Content" />
+                        <Line type="monotone" dataKey="substanceUse" stroke="#d0ed57" name="Substance Use" />
+                        <Line type="monotone" dataKey="riskyBehavior" stroke="#a4de6c" name="Risky Behavior" />
+                        <Line type="monotone" dataKey="socialExclusion" stroke="#ff7300" name="Social Exclusion" />
+                      </LineChart>
+                    </ResponsiveContainer>
                   </div>
                 </CardBody>
               </Card>

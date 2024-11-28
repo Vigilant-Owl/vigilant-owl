@@ -14,6 +14,12 @@ const config: Config = {
         background: "var(--background)",
         foreground: "var(--foreground)",
       },
+      padding: {
+        safe: "env(safe-area-inset-bottom)",
+      },
+      margin: {
+        safe: "env(safe-area-inset-bottom)",
+      },
     },
   },
   darkMode: "class",

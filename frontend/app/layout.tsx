@@ -16,7 +16,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="dark" >
+      <body className="dark flex flex-col min-h-screen pb-safe" >
         <Provider>
           <Navbar />
           <div className="flex-grow max-w-[1120px] py-12 px-6 sm:px-10 md:px-20">

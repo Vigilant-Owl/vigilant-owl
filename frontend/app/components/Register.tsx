@@ -10,7 +10,7 @@ import { createClient } from "@/utils/supabase/client";
 import LegalNotice from "./LegalNotice";
 // import { apiRegisterUser } from "../apis/auth";
 
-const Register = () => {
+const Register = ({ onClick }: { onClick?: () => void }) => {
   const supabase = createClient();
   const { onClose, isOpen, onOpenChange, onOpen } = useDisclosure();
   const [loading, setLoading] = useState(false);
@@ -84,6 +84,7 @@ const Register = () => {
 
       toast.success("Welcome to vigilant owl!");
       onClose();
+      if (onClick) onClick();
     } catch (err) {
       console.error(err);
     } finally {

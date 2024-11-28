@@ -15,6 +15,7 @@ const PhoneNumberInput = ({ value, setValue }: { value: string, setValue: (value
             setValue(value.toString());
           }
         }}
+        defaultCountry="CH"
         labelPlacement="outside"
         label="Phone Number"
         variant="flat"

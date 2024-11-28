@@ -39,12 +39,12 @@ Provide a JSON response with the following structure:
     "slangTerm": "Definition of the slang term",
   },
   "focusAreas": {
-    "bullyingHarassment": number (1-10),
-    "anxietyStress": number (1-10),
-    "inappropriateContent": number (1-10),
-    "substanceUse": number (1-10),
-    "riskyBehavior": number (1-10),
-    "socialExclusion": number (1-10)
+    "bullyingHarassment": number (0-5),
+    "anxietyStress": number (0-5),
+    "inappropriateContent": number (0-5),
+    "substanceUse": number (0-5),
+    "riskyBehavior": number (0-5),
+    "socialExclusion": number (0-5)
   }
 }`,
 };
@@ -153,6 +153,8 @@ const processAnalysisResults = (
       return generateEmptyReport(numberOfParticipants, startDate, endDate);
     }
 
+    const focusAreaDataByDate = {}; // This will hold total and count data for averaging
+
     const initialReport = {
       metadata: {
         totalMessages: messages,
@@ -191,14 +193,6 @@ const processAnalysisResults = (
         messageFrequency: calculateMessageFrequency(analysisResults),
         chatActivity: {},
       },
-      areasOfFocus: {
-        bullyingHarassment: 0,
-        anxietyStress: 0,
-        inappropriateContent: 0,
-        substanceUse: 0,
-        riskyBehavior: 0,
-        socialExclusion: 0,
-      },
       slangDictionary: {},
     };
 
@@ -206,6 +200,30 @@ const processAnalysisResults = (
       const analysis = result.analysis;
       const newAcc = { ...acc };
 
+      // Extract the date from the message
+      const date = new Date(result.created_at).toISOString().split("T")[0];
+
+      // Initialize the focus area data for the date if it doesn't exist
+      if (!focusAreaDataByDate[date]) {
+        focusAreaDataByDate[date] = {
+          totals: {},
+          counts: {},
+        };
+      }
+
+      // Aggregate focus by date with valid values (0-5)
+      Object.entries(analysis.focusAreas).forEach(([area, value]) => {
+        if (value >= 0 && value <= 5) { // Only consider valid values
+          if (!focusAreaDataByDate[date].totals[area]) {
+            focusAreaDataByDate[date].totals[area] = 0;
+            focusAreaDataByDate[date].counts[area] = 0;
+          }
+          focusAreaDataByDate[date].totals[area] += value;
+          focusAreaDataByDate[date].counts[area] += 1;
+        }
+      });
+
+      // Continue with the rest of the processing as before
       newAcc.emotionalAnalysis.primaryEmotions[analysis.primaryEmotion] =
         (acc.emotionalAnalysis.primaryEmotions[analysis.primaryEmotion] || 0) +
         1;
@@ -238,7 +256,6 @@ const processAnalysisResults = (
       newAcc.sentimentAnalysis.distribution[analysis.sentiment]++;
 
       // Update sentiment trend
-      const date = new Date(result.created_at).toISOString().split("T")[0];
       const trendItem = newAcc.sentimentAnalysis.sentimentTrend.find(
         (item) => item.date === date
       );
@@ -263,30 +280,9 @@ const processAnalysisResults = (
       newAcc.contentAnalysis.chatActivity[hour] =
         (acc.contentAnalysis.chatActivity[hour] || 0) + 1;
 
-      // Detect areas of focus based on content
-      if (analysis.primaryEmotion.includes("bullying")) {
-        newAcc.areasOfFocus.bullyingHarassment++;
-      }
-      if (analysis.secondaryEmotions.includes("anxiety")) {
-        newAcc.areasOfFocus.anxietyStress++;
-      }
-      if (analysis.contentTags.includes("inappropriate")) {
-        newAcc.areasOfFocus.inappropriateContent++;
-      }
-      if (analysis.contentTags.includes("substance")) {
-        newAcc.areasOfFocus.substanceUse++;
-      }
-      if (analysis.contentTags.includes("risky")) {
-        newAcc.areasOfFocus.riskyBehavior++;
-      }
-      if (analysis.contentTags.includes("exclusion")) {
-        newAcc.areasOfFocus.socialExclusion++;
-      }
-
       // Handle slang dictionary
       analysis.contentTags.forEach((tag) => {
         if (tag.match(/slang/)) {
-          // assuming `tag` can be a slang indicator
           newAcc.slangDictionary[tag] = "Definition of " + tag; // Placeholder definition
         }
       });
@@ -312,14 +308,6 @@ const processAnalysisResults = (
         console.error(err);
       }
 
-      try {
-        Object.keys(analysis.focusAreas).forEach((area) => {
-          newAcc.areasOfFocus[area] += analysis.focusAreas[area];
-        });
-      } catch (err) {
-        console.error(err);
-      }
-
       return newAcc;
     }, initialReport);
 
@@ -337,9 +325,16 @@ const processAnalysisResults = (
       ? `${activeTime}:00`
       : "Unknown";
 
-    Object.keys(report.areasOfFocus).forEach((area) => {
-      report.areasOfFocus[area] /= analysisResults.length;
-    });
+    // Calculate the average for each focus area by date
+    finalReport.focusAreaByDate = Object.entries(focusAreaDataByDate).map(
+      ([date, { totals, counts }]) => {
+        const averages = {};
+        Object.keys(totals).forEach((area) => {
+          averages[area] = Math.floor(totals[area] / counts[area]);
+        });
+        return { date, ...averages };
+      }
+    );
 
     return finalReport;
   } catch (err) {

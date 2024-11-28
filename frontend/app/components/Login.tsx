@@ -9,7 +9,7 @@ import { apiLoginUser } from "../apis/auth";
 import { ResponseData } from "../types";
 import { createClient } from "@/utils/supabase/client";
 
-const Login = () => {
+const Login = ({ onClick }: { onClick?: () => void }) => {
   const supabase = createClient();
   const { onClose, isOpen, onOpenChange, onOpen } = useDisclosure();
   const [loading, setLoading] = useState(false);
@@ -68,6 +68,7 @@ const Login = () => {
 
       toast.success("Welcome to vigilant owl!");
       onClose();
+      if (onClick) onClick();
     } catch (err) {
       console.error(err);
     } finally {
