@@ -2,15 +2,13 @@ import { Checkbox } from "@nextui-org/react";
 import Link from "next/link";
 
 const LegalAgreement = ({ onClick, isChecked, setIsChecked }: { onClick: () => void, isChecked: boolean, setIsChecked: (state: boolean) => void }) => {
-
-  const handleCheckboxChange = () => {
-    setIsChecked(!isChecked);
-  }
   return (
     <div className="flex items-start space-x-2 px-1">
       <Checkbox
         isSelected={isChecked}
-        onChange={handleCheckboxChange}
+        onChange={() => {
+          setIsChecked(!isChecked);
+        }}
         color="primary"
       >
         <span className="text-gray-800 dark:text-gray-200 text-sm">

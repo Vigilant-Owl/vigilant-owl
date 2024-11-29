@@ -8,8 +8,9 @@ import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import { useUserAuth } from "@/contexts/UserContext";
 
+const supabase = createClient();
+
 const Profile = () => {
-  const supabase = createClient();
   const { user } = useUserAuth();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -58,12 +59,7 @@ const Profile = () => {
 
   const handleResetPassword = async () => {
     try {
-      // const { error } = await supabase.auth.resetPasswordForEmail(profileData.email, {
-      //   redirectTo: `${process.env.NEXT_PUBLIC_SERVER_URL}/update-password`,
-      // })
-      // if (error) throw error;
       router.replace("/update-password");
-      // toast.success("Password reset email sent successfully.");
     } catch (err: any) {
       console.error(err);
       toast.error("Failed to send reset password email.");

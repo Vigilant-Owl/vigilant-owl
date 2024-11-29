@@ -22,46 +22,46 @@ const BillingPage: React.FC = () => {
   });
   const router = useRouter();
 
-  const getQueryParams = () => {
-    if (typeof window !== "undefined") {
-      const params = new URLSearchParams(window.location.search);
-      return {
-        sessionId: params.get("session_id"),
-      };
-    }
-    return { sessionId: null };
-  };
-
-  const fetchSessionDetails = async (sessionId: string | null) => {
-    if (!sessionId) {
-      setError("No session ID found.");
-      setIsLoading(false);
-      return;
-    }
-
-    try {
-      setIsLoading(true);
-      const response = await getSessionDetail(sessionId);
-
-      if (response) {
-        setSessionDetails(response);
-
-        // Successful payment handling
-        if (response.payment_status === "paid") {
-          toast.success("Your subscription has been successfully activated. Thank you for using our service.");
-        }
-      } else {
-        setError("Unable to retrieve session details.");
-      }
-    } catch (error) {
-      console.error("Error fetching session details:", error);
-      setError("Payment verification failed. Please contact support.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   useEffect(() => {
+    const getQueryParams = () => {
+      if (typeof window !== "undefined") {
+        const params = new URLSearchParams(window.location.search);
+        return {
+          sessionId: params.get("session_id"),
+        };
+      }
+      return { sessionId: null };
+    };
+
+    const fetchSessionDetails = async (sessionId: string | null) => {
+      if (!sessionId) {
+        setError("No session ID found.");
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        const response = await getSessionDetail(sessionId);
+
+        if (response) {
+          setSessionDetails(response);
+
+          // Successful payment handling
+          if (response.payment_status === "paid") {
+            toast.success("Your subscription has been successfully activated. Thank you for using our service.");
+          }
+        } else {
+          setError("Unable to retrieve session details.");
+        }
+      } catch (error) {
+        console.error("Error fetching session details:", error);
+        setError("Payment verification failed. Please contact support.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     const { sessionId } = getQueryParams();
     fetchSessionDetails(sessionId);
   }, []);

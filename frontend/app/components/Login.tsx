@@ -9,16 +9,17 @@ import { apiLoginUser } from "../apis/auth";
 import { ResponseData } from "../types";
 import { createClient } from "@/utils/supabase/client";
 
+const supabase = createClient();
+
+const schema = Joi.object({
+  email: Joi.string().email({ tlds: false }).required(),
+  password: Joi.string().min(6).required(),
+})
+
 const Login = ({ onClick }: { onClick?: () => void }) => {
-  const supabase = createClient();
   const { onClose, isOpen, onOpenChange, onOpen } = useDisclosure();
   const [loading, setLoading] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
-
-  const schema = Joi.object({
-    email: Joi.string().email({ tlds: false }).required(),
-    password: Joi.string().min(6).required(),
-  })
 
   const validateData = (data: object) => {
     const { error } = schema.validate(data);
@@ -61,11 +62,6 @@ const Login = ({ onClick }: { onClick?: () => void }) => {
         return toast.error(error.message);
       }
 
-      // const { data: userData, error: profileError } = await supabase.from("profiles").select("*").eq("email", data.email).single();
-
-      // if (profileError) throw profileError;
-      // console.log(userData);
-
       toast.success("Welcome to vigilant owl!");
       onClose();
       if (onClick) onClick();
@@ -75,6 +71,7 @@ const Login = ({ onClick }: { onClick?: () => void }) => {
       setLoading(false);
     }
   }
+
   return (
     <>
       <Button onClick={() => onOpen()} variant="light" className="flex sm:hidden w-full justify-start gap-2 p-2" color="primary">

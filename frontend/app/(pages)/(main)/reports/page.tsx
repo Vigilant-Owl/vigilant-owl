@@ -1,8 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable react-hooks/exhaustive-deps */
+
 "use client"
+
 import { getReport } from "@/apis/report";
 import { Card, CardBody, CardHeader, Spinner, Button, Select, SelectItem } from "@nextui-org/react";
-import { XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line, Legend } from 'recharts';
+import { XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
 import {
   BiMessageDetail,
   BiHeart,
@@ -11,131 +14,172 @@ import {
   BiTimeFive,
 } from "react-icons/bi";
 import {
+  MdBusiness,
+  MdSecurity,
+  MdOutlineAddAlert,
+  MdOutlineSmokingRooms,
+  MdOutlineWarning,
+  MdOutlinePeopleOutline,
+  MdOutlineInterests
+} from 'react-icons/md';
+import {
   RiEmotionLine,
   RiEmotionHappyLine,
   RiEmotionNormalLine,
 } from "react-icons/ri";
-import { MdOutlineInterests } from "react-icons/md";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { createClient } from "@/utils/supabase/client";
 import Link from "next/link";
 import { useUserAuth } from "@/contexts/UserContext";
 
-const Reports = () => {
-  const mockupData = {
-    "metadata": {
-      "totalMessages": 10,
-      "timespan": {
-        "startDate": "2024-11-10",
-        "endDate": "2024-11-12"
-      },
-      "analysisTimestamp": "2024-11-12T19:38:39.133Z",
-      "numberOfParticipants": 5,
+import React from 'react';
+import Rating from '@/components/Rating';
+
+const AREAS_OF_FOCUS_MAP = {
+  bullyingHarassment: {
+    label: 'Bullying & Harassment',
+    icon: MdSecurity,
+    color: 'text-red-500'
+  },
+  anxietyStress: {
+    label: 'Anxiety & Stress',
+    icon: MdOutlineAddAlert,
+    color: 'text-orange-500'
+  },
+  inappropriateContent: {
+    label: 'Inappropriate Content',
+    icon: MdBusiness,
+    color: 'text-yellow-500'
+  },
+  substanceUse: {
+    label: 'Substance Use',
+    icon: MdOutlineSmokingRooms,
+    color: 'text-purple-500'
+  },
+  riskyBehavior: {
+    label: 'Risky Behavior',
+    icon: MdOutlineWarning,
+    color: 'text-pink-500'
+  },
+  socialExclusion: {
+    label: 'Social Exclusion',
+    icon: MdOutlinePeopleOutline,
+    color: 'text-blue-500'
+  }
+};
+
+
+const mockupData = {
+  "metadata": {
+    "totalMessages": 10,
+    "timespan": {
+      "startDate": "2024-11-10",
+      "endDate": "2024-11-12"
     },
-    "emotionalAnalysis": {
-      "primaryEmotions": {
-        "happiness": 2,
-        "casualness": 1,
-        "curiosity": 3,
-        "excitement": 2,
-        "interest": 1,
-        "enthusiasm": 2,
-        "anticipation": 1
-      },
-      "secondaryEmotions": {
-        "pride": 2,
-        "enthusiasm": 2,
-        "excitement": 1,
-        "forgetfulness": 1,
-        "interest": 3,
-        "fear": 2,
-        "admiration": 1,
-        "amazement": 1,
-        "curiosity": 1,
-        "anticipation": 3,
-        "cooperation": 2,
-        "openness": 1
-      },
-      "emotionalVolatility": 0.36363636363636365
+    "analysisTimestamp": "2024-11-12T19:38:39.133Z",
+    "numberOfParticipants": 5,
+  },
+  "emotionalAnalysis": {
+    "primaryEmotions": {
+      "happiness": 2,
+      "casualness": 1,
+      "curiosity": 3,
+      "excitement": 2,
+      "interest": 1,
+      "enthusiasm": 2,
+      "anticipation": 1
     },
-    "communicationPatterns": {
-      "averageFormality": 2.1666666666666665,
-      "styleMetrics": {
-        "assertiveness": 3.5,
-        "openness": 7.416666666666667,
-        "engagement": 6.5
-      }
+    "secondaryEmotions": {
+      "pride": 2,
+      "enthusiasm": 2,
+      "excitement": 1,
+      "forgetfulness": 1,
+      "interest": 3,
+      "fear": 2,
+      "admiration": 1,
+      "amazement": 1,
+      "curiosity": 1,
+      "anticipation": 3,
+      "cooperation": 2,
+      "openness": 1
     },
-    "psychologicalProfile": {
-      "averageConfidence": 5.583333333333333,
-      "averageAnxiety": 2.4166666666666665
+    "emotionalVolatility": 0.36363636363636365
+  },
+  "communicationPatterns": {
+    "averageFormality": 2.1666666666666665,
+    "styleMetrics": {
+      "assertiveness": 3.5,
+      "openness": 7.416666666666667,
+      "engagement": 6.5
+    }
+  },
+  "psychologicalProfile": {
+    "averageConfidence": 5.583333333333333,
+    "averageAnxiety": 2.4166666666666665
+  },
+  "socialInteraction": {
+    "averageCooperation": 6.666666666666667,
+    "averageDominance": 2.5,
+    "averageEmpathy": 6.25
+  },
+  "sentimentAnalysis": {
+    "distribution": {
+      "positive": 10,
+      "neutral": 2,
+      "negative": 0
     },
-    "socialInteraction": {
-      "averageCooperation": 6.666666666666667,
-      "averageDominance": 2.5,
-      "averageEmpathy": 6.25
-    },
-    "sentimentAnalysis": {
-      "distribution": {
-        "positive": 10,
-        "neutral": 2,
+    "sentimentTrend": [
+      {
+        "date": "2024-11-11",
+        "positive": 8,
         "negative": 0
       },
-      "sentimentTrend": [
-        {
-          "date": "2024-11-11",
-          "positive": 8,
-          "negative": 0
-        },
-        {
-          "date": "2024-11-12",
-          "positive": 2,
-          "negative": 0
-        }
-      ]
+      {
+        "date": "2024-11-12",
+        "positive": 2,
+        "negative": 0
+      }
+    ]
+  },
+  "contentAnalysis": {
+    "commonTags": {
+      "enthusiasm": 2,
+      "collaboration": 2,
+      "planning": 2,
+      "personal achievement": 1,
+      "sports": 1,
+      "art": 1,
+      "leisure": 1,
+      "creativity": 1,
+      "casual planning": 1,
+      "social interaction": 1
     },
-    "contentAnalysis": {
-      "commonTags": {
-        "enthusiasm": 2,
-        "collaboration": 2,
-        "planning": 2,
-        "personal achievement": 1,
-        "sports": 1,
-        "art": 1,
-        "leisure": 1,
-        "creativity": 1,
-        "casual planning": 1,
-        "social interaction": 1
-      },
-      "messageFrequency": {
-        "2024-11-11": 12
-      },
-      "chatActivity": {
-        "14": 10
-      },
-      "mostActiveTime": "14:00"
+    "messageFrequency": {
+      "2024-11-11": 12
     },
-    "areasOfFocus": {
-      "bullyingHarassment": 0,
-      "anxietyStress": 0,
-      "inappropriateContent": 0,
-      "substanceUse": 0,
-      "riskyBehavior": 0,
-      "socialExclusion": 0
+    "chatActivity": {
+      "14": 10
     },
-    "focusAreaByDate": [
-      { date: "2024-11-10", bullyingHarassment: 1, anxietyStress: 2, inappropriateContent: 0, substanceUse: 0, riskyBehavior: 1, socialExclusion: 0 },
-      { date: "2024-11-11", bullyingHarassment: 0, anxietyStress: 1, inappropriateContent: 1, substanceUse: 1, riskyBehavior: 0, socialExclusion: 1 },
-      { date: "2024-11-12", bullyingHarassment: 2, anxietyStress: 0, inappropriateContent: 2, substanceUse: 0, riskyBehavior: 1, socialExclusion: 0 },
-    ],
-    "slangDictionary": {
-      "GOAT": "Greatest Of All Time",
-      "KYS": "Kill Yourself"
-    }
-  };
+    "mostActiveTime": "14:00"
+  },
+  "areasOfFocus": {
+    "bullyingHarassment": 2,
+    "anxietyStress": 1,
+    "inappropriateContent": 0,
+    "substanceUse": 3,
+    "riskyBehavior": 2,
+    "socialExclusion": 0
+  },
+  "slangDictionary": {
+    "GOAT": "Greatest Of All Time",
+    "KYS": "Kill Yourself"
+  }
+};
 
-  const supabase = createClient();
+const supabase = createClient();
+
+const Reports = () => {
   const [data, setData] = useState<any>(mockupData);
   const [loading, setLoading] = useState(false);
   const [isData, setIsData] = useState(false);
@@ -148,6 +192,15 @@ const Reports = () => {
     phone_number: ""
   });
   const [groups, setGroups] = useState([]);
+
+  const getConcernLevelText = (rating: number) => {
+    if (rating === 0) return 'No Concern';
+    if (rating <= 1) return 'Very Low Concern';
+    if (rating <= 2) return 'Low Concern';
+    if (rating <= 3) return 'Moderate Concern';
+    if (rating <= 4) return 'High Concern';
+    return 'Critical Concern';
+  };
 
   const handleGetReport = useCallback(async (payload: any) => {
     try {
@@ -190,39 +243,39 @@ const Reports = () => {
     } finally {
       setLoading(false);
     }
-  }, [supabase, user]);
-
-  const handleGetGroupData = useCallback(async () => {
-    try {
-      if (user?.id) {
-        setLoading(true);
-        const { data, error } = await supabase.rpc("get_group_data", { user_id: user.id });
-        if (error) {
-          throw error;
-        }
-        setGroups(data);
-        if (data.length) {
-          setGroupIndex(0);
-          setGroup(data[0]);
-          handleGetReportByRequest(data[0].group_id, data[0].phone_number);
-        } else {
-          toast.error("You didn't install the service or there is no data.");
-        }
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  }, [supabase, user]);
+  }, [user]);
 
   useEffect(() => {
+    const handleGetGroupData = async () => {
+      try {
+        if (user?.id) {
+          setLoading(true);
+          const { data, error } = await supabase.rpc("get_group_data", { user_id: user.id });
+          if (error) {
+            throw error;
+          }
+          setGroups(data);
+          if (data.length) {
+            setGroupIndex(0);
+            setGroup(data[0]);
+            handleGetReportByRequest(data[0].group_id, data[0].phone_number);
+          } else {
+            toast.error("You didn't install the service or there is no data.");
+          }
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
     handleGetGroupData();
     const channel = supabase.channel("reports_channel").on("postgres_changes", { event: "*", schema: "public", table: "reports" }, handleGetReport).subscribe();
     return () => {
       channel.unsubscribe();
     }
-  }, [handleGetGroupData, handleGetReport, supabase]);
+  }, []);
 
   const getEmotionIcon = (emotion: any) => {
     const iconProps = { className: "w-6 h-6 text-yellow-500" };
@@ -322,9 +375,6 @@ const Reports = () => {
               {/* Header */}
               <div className="flex items-center justify-between mb-6">
                 <h1 className="text-2xl font-bold text-white">Analysis Report</h1>
-                {/* <div className="text-gray-400">
-                {data.metadata.timespan.startDate} ~ {data.metadata.timespan.endDate}
-              </div> */}
               </div>
 
               {/* Key Metrics */}
@@ -435,21 +485,32 @@ const Reports = () => {
                   </div>
                 </CardHeader>
                 <CardBody>
-                  <div className="h-72">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={data.focusAreaByDate}>
-                        <XAxis dataKey="date" />
-                        <YAxis />
-                        <Tooltip />
-                        <Legend />
-                        <Line type="monotone" dataKey="bullyingHarassment" stroke="#8884d8" name="Bullying Harassment" />
-                        <Line type="monotone" dataKey="anxietyStress" stroke="#82ca9d" name="Anxiety & Stress" />
-                        <Line type="monotone" dataKey="inappropriateContent" stroke="#ffc658" name="Inappropriate Content" />
-                        <Line type="monotone" dataKey="substanceUse" stroke="#d0ed57" name="Substance Use" />
-                        <Line type="monotone" dataKey="riskyBehavior" stroke="#a4de6c" name="Risky Behavior" />
-                        <Line type="monotone" dataKey="socialExclusion" stroke="#ff7300" name="Social Exclusion" />
-                      </LineChart>
-                    </ResponsiveContainer>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    {Object.entries<number>(data.areasOfFocus).map(([key, rating]) => {
+                      const { label, icon: Icon, color } = AREAS_OF_FOCUS_MAP[key as keyof typeof AREAS_OF_FOCUS_MAP];
+
+                      return (
+                        <div
+                          key={key}
+                          className="flex flex-col items-center space-y-2 p-3 bg-gray-700 rounded-lg"
+                        >
+                          <div className="flex items-center space-x-2 mb-2">
+                            <Icon className={`w-6 h-6 ${color}`} />
+                            <span className="text-white text-sm">{label}</span>
+                          </div>
+                          <Rating
+                            totalStars={5}
+                            initialRating={rating}
+                            readOnly
+                            filledColor={color}
+                            unfilledColor="text-gray-500"
+                          />
+                          <span className="text-gray-400 text-xs">
+                            {getConcernLevelText(rating)}
+                          </span>
+                        </div>
+                      );
+                    })}
                   </div>
                 </CardBody>
               </Card>

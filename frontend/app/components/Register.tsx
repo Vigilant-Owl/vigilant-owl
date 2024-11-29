@@ -8,22 +8,22 @@ import Joi from 'joi';
 import { RegisterData } from "../types";
 import { createClient } from "@/utils/supabase/client";
 import LegalNotice from "./LegalNotice";
-// import { apiRegisterUser } from "../apis/auth";
+
+const supabase = createClient();
+
+const schema = Joi.object({
+  email: Joi.string().email({ tlds: false }).required(),
+  firstName: Joi.string().min(1).required(),
+  lastName: Joi.string().min(1).required(),
+  password: Joi.string().min(6).required(),
+  confirmPassword: Joi.string().valid(Joi.ref('password')).required(),
+});
 
 const Register = ({ onClick }: { onClick?: () => void }) => {
-  const supabase = createClient();
   const { onClose, isOpen, onOpenChange, onOpen } = useDisclosure();
   const [loading, setLoading] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [isLegalChecked, setIsLegalChecked] = useState(false);
-
-  const schema = Joi.object({
-    email: Joi.string().email({ tlds: false }).required(),
-    firstName: Joi.string().min(1).required(),
-    lastName: Joi.string().min(1).required(),
-    password: Joi.string().min(6).required(),
-    confirmPassword: Joi.string().valid(Joi.ref('password')).required(),
-  });
 
   const validateData = (data: object) => {
     const { error } = schema.validate(data);
@@ -35,7 +35,6 @@ const Register = ({ onClick }: { onClick?: () => void }) => {
 
     return null;
   };
-
 
   const handleRegister = async (form: HTMLFormElement) => {
     try {
@@ -55,10 +54,6 @@ const Register = ({ onClick }: { onClick?: () => void }) => {
       }
 
       setLoading(true);
-
-      // const response: ResponseData = await apiRegisterUser(data);
-
-      // console.log(response);
 
       const { error } = await supabase.auth.signUp({
         email: data.email,

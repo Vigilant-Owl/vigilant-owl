@@ -193,6 +193,14 @@ const processAnalysisResults = (
         messageFrequency: calculateMessageFrequency(analysisResults),
         chatActivity: {},
       },
+      areasOfFocus: {
+        bullyingHarassment: 0,
+        anxietyStress: 0,
+        inappropriateContent: 0,
+        substanceUse: 0,
+        riskyBehavior: 0,
+        socialExclusion: 0,
+      },
       slangDictionary: {},
     };
 
@@ -202,26 +210,6 @@ const processAnalysisResults = (
 
       // Extract the date from the message
       const date = new Date(result.created_at).toISOString().split("T")[0];
-
-      // Initialize the focus area data for the date if it doesn't exist
-      if (!focusAreaDataByDate[date]) {
-        focusAreaDataByDate[date] = {
-          totals: {},
-          counts: {},
-        };
-      }
-
-      // Aggregate focus by date with valid values (0-5)
-      Object.entries(analysis.focusAreas).forEach(([area, value]) => {
-        if (value >= 0 && value <= 5) { // Only consider valid values
-          if (!focusAreaDataByDate[date].totals[area]) {
-            focusAreaDataByDate[date].totals[area] = 0;
-            focusAreaDataByDate[date].counts[area] = 0;
-          }
-          focusAreaDataByDate[date].totals[area] += value;
-          focusAreaDataByDate[date].counts[area] += 1;
-        }
-      });
 
       // Continue with the rest of the processing as before
       newAcc.emotionalAnalysis.primaryEmotions[analysis.primaryEmotion] =
@@ -308,6 +296,14 @@ const processAnalysisResults = (
         console.error(err);
       }
 
+      try {
+        Object.keys(analysis.focusAreas).forEach((area) => {
+          newAcc.areasOfFocus[area] += analysis.focusAreas[area];
+        });
+      } catch (err) {
+        console.error(err);
+      }
+
       return newAcc;
     }, initialReport);
 
@@ -325,16 +321,11 @@ const processAnalysisResults = (
       ? `${activeTime}:00`
       : "Unknown";
 
-    // Calculate the average for each focus area by date
-    finalReport.focusAreaByDate = Object.entries(focusAreaDataByDate).map(
-      ([date, { totals, counts }]) => {
-        const averages = {};
-        Object.keys(totals).forEach((area) => {
-          averages[area] = Math.floor(totals[area] / counts[area]);
-        });
-        return { date, ...averages };
-      }
-    );
+    Object.keys(report.areasOfFocus).forEach((area) => {
+      report.areasOfFocus[area] = Math.round(
+        report.areasOfFocus[area] / analysisResults.length
+      );
+    });
 
     return finalReport;
   } catch (err) {

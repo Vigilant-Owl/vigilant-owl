@@ -11,8 +11,9 @@ import { isValidPhoneNumber } from 'react-phone-number-input'
 import PhoneNumberInput from "./PhoneNumberInput";
 import { useUserAuth } from "@/contexts/UserContext";
 
+const supabase = createClient();
+
 const Install = () => {
-  const supabase = createClient();
   const { user } = useUserAuth();
   const { onClose, isOpen, onOpenChange, onOpen } = useDisclosure();
   const [loading, setLoading] = useState(false);
@@ -85,6 +86,7 @@ const Install = () => {
       console.error(err);
     }
   }
+
   return (
     <>
       <Button onClick={() => handleOpen()} color="success" variant="shadow" className="min-w-56">

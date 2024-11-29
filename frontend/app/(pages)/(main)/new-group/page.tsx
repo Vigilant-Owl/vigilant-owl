@@ -1,75 +1,47 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable react-hooks/exhaustive-deps */
+
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
-// import QRCode from "@/components/QRCode";
 import Install from "@/components/Install";
-// import useWebSocket from "react-use-websocket";
-// const WS_URL = process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8000";
+
+const supabase = createClient();
 
 export default function Home() {
-  const supabase = createClient();
 
   const [messages, setMessages] = useState<any[]>([]);
 
-  const addMessage = useCallback(async (payload: any) => {
-    try {
-      if (payload.eventType === "INSERT") {
-        console.log(payload.new);
-        setMessages([...messages, payload.new]);
+  useEffect(() => {
+    const handleGetInitialData = async () => {
+      const { data, error } = await supabase.from("messages").select("*");
+      if (error) {
+        console.error(error);
       }
-    } catch (err) {
-      console.error(err);
-    }
-  }, [messages]);
 
-  const handleGetInitialData = useCallback(async () => {
-    const { data, error } = await supabase.from("messages").select("*");
-    if (error) {
-      console.error(error);
-    }
+      if (data) {
+        setMessages(data as any[]);
+      }
+    };
 
-    if (data) {
-      setMessages(data as any[]);
-    }
-  }, [supabase]);
+    const addMessage = async (payload: any) => {
+      try {
+        if (payload.eventType === "INSERT") {
+          console.log(payload.new);
+          setMessages([...messages, payload.new]);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
 
-  useEffect(() => {
     handleGetInitialData();
-  }, [handleGetInitialData]);
-
-  useEffect(() => {
     const channel = supabase.channel("messages_channel").on("postgres_changes", { event: "INSERT", schema: "public", table: "messages" }, addMessage).subscribe();
     return () => {
       channel.unsubscribe();
     }
-  }, [addMessage, supabase]);
-  // const { lastMessage } = useWebSocket(WS_URL, {
-  //   onOpen: () => {
-  //     console.log("WebSocket connection established.");
-  //   },
-  //   share: true,
-  //   filter: () => false,
-  //   retryOnError: true,
-  //   shouldReconnect: () => true,
-  // });
-
-  // useEffect(() => {
-  //   if (lastMessage !== null) {
-  //     console.log("Last message received:", lastMessage.data);
-  //     try {
-  //       const messageData = JSON.parse(lastMessage.data);
-  //       console.log("Parsed message data:", messageData);
-  //       if (messageData.type === "message") {
-  //         console.log("Message from whatsap:", messageData.msg);
-  //         setMessages([...messages, messageData.msg]);
-  //       }
-  //     } catch (error) {
-  //       console.error("Failed to parse message data:", error);
-  //     }
-  //   }
-  // }, [lastMessage]);
+  }, []);
 
   return (
     <div className="items-center justify-items-center font-[roboto] w-fit">

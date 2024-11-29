@@ -1,8 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable react-hooks/exhaustive-deps */
+
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { FiBarChart2, FiFileText, FiSettings, FiHelpCircle, FiUser, FiLogOut } from "react-icons/fi";
 import { Navbar, NavbarBrand, NavbarContent, User, NavbarMenuToggle, NavbarMenu, Dropdown, DropdownTrigger, DropdownItem, DropdownMenu, Button } from "@nextui-org/react";
 import Image from "next/image";
@@ -16,20 +18,22 @@ import { lato, roboto } from "../fonts";
 import logoImage from "@/assets/logo.webp";
 import { useUserAuth } from "@/contexts/UserContext";
 
+const supabase = createClient();
+
+const menuItems = [
+  { name: "Open a new group", route: "/new-group", icon: <FiBarChart2 /> },
+  { name: "Reports", route: "/reports", icon: <FiFileText /> },
+  { name: "Subscriptions", route: "/subscriptions", icon: <FiSettings /> },
+  { name: "Help", route: "/help", icon: <FiHelpCircle /> },
+];
+
 const Header = () => {
-  const supabase = createClient();
   const router = useRouter();
   const pathname = usePathname();
   const { user, setUser } = useUserAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
-  const menuItems = [
-    { name: "Open a new group", route: "/new-group", icon: <FiBarChart2 /> },
-    { name: "Reports", route: "/reports", icon: <FiFileText /> },
-    { name: "Subscriptions", route: "/subscriptions", icon: <FiSettings /> },
-    { name: "Help", route: "/help", icon: <FiHelpCircle /> },
-  ];
 
   useEffect(() => {
     const handleScroll = () => {
@@ -39,7 +43,7 @@ const Header = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const fetchUserProfile = useCallback(async (userId: string) => {
+  const fetchUserProfile = async (userId: string) => {
     try {
       const { data: profile, error }: { data: any, error: any } = await supabase
         .from("profiles")
@@ -60,9 +64,9 @@ const Header = () => {
       console.error(error);
       toast.error("Failed to fetch user profile");
     }
-  }, [setUser, supabase]);
+  }
 
-  const handleAuthStateChange = useCallback(async (event: string) => {
+  const handleAuthStateChange = async (event: string) => {
     if (event === "SIGNED_OUT") {
       setUser(null);
       clearStorage();
@@ -80,7 +84,7 @@ const Header = () => {
         setUser(null);
       }
     }
-  }, [fetchUserProfile, setUser, supabase.auth]);
+  }
 
   const clearStorage = () => {
     [window.localStorage, window.sessionStorage].forEach((storage) => {
@@ -107,7 +111,7 @@ const Header = () => {
     fetchCurrentUser();
     const { data: { subscription } } = supabase.auth.onAuthStateChange(handleAuthStateChange);
     return () => subscription.unsubscribe();
-  }, [fetchUserProfile, handleAuthStateChange, setUser, supabase.auth]);
+  }, []);
 
   const handleLogOut = async () => {
     try {

@@ -1,5 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable react-hooks/exhaustive-deps */
+
 "use client"
+
 import React, { useCallback, useEffect, useState } from "react";
 import { loadStripe } from '@stripe/stripe-js';
 import PlanCard from "@/components/PlanCard";
@@ -9,97 +12,97 @@ import { createClient } from "@/utils/supabase/client";
 import { useUserAuth } from "@/contexts/UserContext";
 
 const PRICE_IDS = {
-  // free: "price_1QNGGnRoMLPC6yHCd7Axnp7Z",
   monthly: "price_1QMX3kRoMLPC6yHCvIqEA8LV",
   yearly: "price_1QNEjZRoMLPC6yHClWRZ5vye",
 };
 
+const supabase = createClient();
+
+const plans = [
+  {
+    title: "Free Trial",
+    description: "Experience all features for free for a limited time.",
+    features: [
+      "Full Access to All Features",
+      "Limited Time Offer",
+      "Available on a Single Device"
+    ],
+    buttonText: "Start Free Trial",
+    cancelText: "Stop Free Trial",
+    headerGradient: "linear-gradient(to right, #232526, #414345)",
+    priceId: null,
+  },
+  {
+    title: "Monthly Subscription",
+    description: "Enjoy features on a month-to-month basis.",
+    features: [
+      "All Features Included",
+      "Cancel Anytime",
+      "Priority Support"
+    ],
+    buttonText: "Subscribe Monthly",
+    cancelText: "Cancel Subscription",
+    headerGradient: "linear-gradient(to right, #1e3c72, #2a5298)",
+    priceId: PRICE_IDS.monthly,
+  },
+  {
+    title: "Yearly Subscription",
+    description: "Get the best value with a yearly subscription.",
+    features: [
+      "All Features Included",
+      "Two Months Free",
+      "Priority Support"
+    ],
+    buttonText: "Subscribe Yearly",
+    cancelText: "Cancel Subscription",
+    headerGradient: "linear-gradient(to right, #4e54c8, #8f94fb)",
+    priceId: PRICE_IDS.yearly,
+  },
+];
+
 const PricingPlans = () => {
   const { user } = useUserAuth();
-  const supabase = createClient();
   const [selectedPlanIndex, setSelectedPlanIndex] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
   const [possibleFreeTrial, setPossibleFreeTrial] = useState(false);
   const [subscriptionId, setSubscriptionId] = useState("");
 
-  const plans = [
-    {
-      title: "Free Trial",
-      description: "Experience all features for free for a limited time.",
-      features: [
-        "Full Access to All Features",
-        "Limited Time Offer",
-        "Available on a Single Device"
-      ],
-      buttonText: "Start Free Trial",
-      cancelText: "Stop Free Trial",
-      headerGradient: "linear-gradient(to right, #232526, #414345)",
-      priceId: null,
-    },
-    {
-      title: "Monthly Subscription",
-      description: "Enjoy features on a month-to-month basis.",
-      features: [
-        "All Features Included",
-        "Cancel Anytime",
-        "Priority Support"
-      ],
-      buttonText: "Subscribe Monthly",
-      cancelText: "Cancel Subscription",
-      headerGradient: "linear-gradient(to right, #1e3c72, #2a5298)",
-      priceId: PRICE_IDS.monthly,
-    },
-    {
-      title: "Yearly Subscription",
-      description: "Get the best value with a yearly subscription.",
-      features: [
-        "All Features Included",
-        "Two Months Free",
-        "Priority Support"
-      ],
-      buttonText: "Subscribe Yearly",
-      cancelText: "Cancel Subscription",
-      headerGradient: "linear-gradient(to right, #4e54c8, #8f94fb)",
-      priceId: PRICE_IDS.yearly,
-    },
-  ];
-
-  const handleGetInitialData = useCallback(async () => {
-    try {
-      if (user?.id) {
-        const { data, error }: { data: any, error: any } = await supabase.from("profiles").select("*").eq("id", user.id).single();
-        if (error) throw error;
-        if (data) {
-          setPossibleFreeTrial(data?.free_trial !== false);
-          if (data?.stripe_subscription_id) {
-            setSubscriptionId(data?.stripe_subscription_id);
-          }
-          if (data?.subscription_status === "active") {
-            if (data?.current_price_id === PRICE_IDS.monthly) {
-              setSelectedPlanIndex(1);
-              return;
-            } else if (data?.current_price_id === PRICE_IDS.yearly) {
-              setSelectedPlanIndex(2);
+  useEffect(() => {
+    const handleGetInitialData = async () => {
+      try {
+        if (user?.id) {
+          const { data, error }: { data: any, error: any } = await supabase.from("profiles").select("*").eq("id", user.id).single();
+          if (error) throw error;
+          if (data) {
+            setPossibleFreeTrial(data?.free_trial !== false);
+            if (data?.stripe_subscription_id) {
+              setSubscriptionId(data?.stripe_subscription_id);
+            }
+            if (data?.subscription_status === "active") {
+              if (data?.current_price_id === PRICE_IDS.monthly) {
+                setSelectedPlanIndex(1);
+                return;
+              } else if (data?.current_price_id === PRICE_IDS.yearly) {
+                setSelectedPlanIndex(2);
+                return;
+              }
+            } else if (data?.free_trial) {
+              setSelectedPlanIndex(0);
               return;
             }
-          } else if (data?.free_trial) {
-            setSelectedPlanIndex(0);
-            return;
           }
+          setSelectedPlanIndex(-1);
         }
-        setSelectedPlanIndex(-1);
+      } catch (err: any) {
+        console.error(err);
+        toast.error(err.message);
       }
-    } catch (err: any) {
-      console.error(err);
-      toast.error(err.message);
     }
-  }, [supabase, user]);
 
-  useEffect(() => {
     handleGetInitialData();
-  }, [handleGetInitialData]);
+  }, []);
 
-  const handleSubscribe = async (priceId: string | null) => {
+  const handleSubscribe = useCallback(async (priceId: string | null) => {
     try {
       if (!priceId) {
         const { error }: { data: any, error: any } = await supabase.from("profiles").update({
@@ -142,9 +145,9 @@ const PricingPlans = () => {
       toast.error(err.message);
       console.error(err);
     }
-  };
+  }, [user]);
 
-  const handleCancelSubscribe = async (index: number) => {
+  const handleCancelSubscribe = useCallback(async (index: number) => {
     try {
       if (user?.id) {
         if (index === 0) {
@@ -165,7 +168,7 @@ const PricingPlans = () => {
       toast.error(err.message);
       console.error(err);
     }
-  }
+  }, [subscriptionId, user]);
 
   return (
     <div className="flex mx-auto justify-center items-center">

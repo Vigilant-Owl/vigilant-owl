@@ -24,79 +24,80 @@ import {
 import { SiRoblox } from 'react-icons/si';
 import logoImage from "@/assets/logo.webp";
 
+const platforms = [
+  {
+    name: "WhatsApp",
+    description: "Monitor group chats while preserving privacy",
+    status: "Available Now",
+    icon: <FaWhatsapp className="h-8 w-8 mb-2 text-green-500" />
+  },
+  {
+    name: "Discord",
+    description: "Keep track of server activities and conversations",
+    status: "Coming Soon",
+    icon: <FaDiscord className="h-8 w-8 mb-2 text-indigo-500" />
+  },
+  {
+    name: "Telegram",
+    description: "Securely monitor group and individual chats while maintaining user privacy",
+    status: "Coming Soon",
+    icon: <FaTelegramPlane className="h-8 w-8 mb-2 text-blue-500" />
+  },
+  {
+    name: "Roblox",
+    description: "Monitor in-game chat for player safety and compliance.",
+    status: "In Development",
+    icon: <SiRoblox className="h-8 w-8 mb-2 text-red-500" />
+  }
+];
+
+const features = [
+  {
+    title: "AI-Powered Monitoring",
+    description: "Advanced AI technology that understands context and sentiment",
+    icon: <FaShieldAlt className="h-6 w-6" />
+  },
+  {
+    title: "Privacy First",
+    description: "Secure, consent-based monitoring that respects personal boundaries",
+    icon: <FaLock className="h-6 w-6" />
+  },
+  {
+    title: "Real-time Alerts",
+    description: "Get instant notifications about concerning interactions",
+    icon: <FaBell className="h-6 w-6" />
+  },
+  {
+    title: "Community Support",
+    description: "Join a community of parents committed to digital safety",
+    icon: <FaUsers className="h-6 w-6" />
+  }
+];
+
+const frequentlyQuestions = [
+  {
+    q: "How does Vigilant Owl monitor group chats without invading privacy?",
+    a: "Vigilant Owl uses AI to assess the general tone of group conversations without reading specific messages. This approach keeps your child's privacy intact while offering insights into their online interactions."
+  },
+  {
+    q: "What should I do if I'm interested in Vigilant Owl?",
+    a: "Simply fill out the contact form below and provide your email address. We'll keep you updated on the latest developments, share exclusive insights, and offer early access to Vigilant Owl as we prepare for launch."
+  },
+  {
+    q: "Which platforms are supported?",
+    a: "Currently, Vigilant Owl supports WhatsApp, with plans to expand to other popular messaging and social media platforms."
+  },
+  {
+    q: "How is my data protected?",
+    a: "Vigilant Owl adheres to strict data security protocols, ensuring any collected information remains private and secure."
+  },
+  {
+    q: "Is Vigilant Owl difficult to set up?",
+    a: "No, Vigilant Owl is simple to set up. Parents add a designated bot to group chats, and the AI does the rest, providing easy-to-understand summaries."
+  }
+];
+
 const Page = () => {
-  const platforms = [
-    {
-      name: "WhatsApp",
-      description: "Monitor group chats while preserving privacy",
-      status: "Available Now",
-      icon: <FaWhatsapp className="h-8 w-8 mb-2 text-green-500" />
-    },
-    {
-      name: "Discord",
-      description: "Keep track of server activities and conversations",
-      status: "Coming Soon",
-      icon: <FaDiscord className="h-8 w-8 mb-2 text-indigo-500" />
-    },
-    {
-      name: "Telegram",
-      description: "Securely monitor group and individual chats while maintaining user privacy",
-      status: "Coming Soon",
-      icon: <FaTelegramPlane className="h-8 w-8 mb-2 text-blue-500" />
-    },
-    {
-      name: "Roblox",
-      description: "Monitor in-game chat for player safety and compliance.",
-      status: "In Development",
-      icon: <SiRoblox className="h-8 w-8 mb-2 text-red-500" />
-    }
-  ];
-
-  const features = [
-    {
-      title: "AI-Powered Monitoring",
-      description: "Advanced AI technology that understands context and sentiment",
-      icon: <FaShieldAlt className="h-6 w-6" />
-    },
-    {
-      title: "Privacy First",
-      description: "Secure, consent-based monitoring that respects personal boundaries",
-      icon: <FaLock className="h-6 w-6" />
-    },
-    {
-      title: "Real-time Alerts",
-      description: "Get instant notifications about concerning interactions",
-      icon: <FaBell className="h-6 w-6" />
-    },
-    {
-      title: "Community Support",
-      description: "Join a community of parents committed to digital safety",
-      icon: <FaUsers className="h-6 w-6" />
-    }
-  ];
-
-  const frequentlyQuestions = [
-    {
-      q: "How does Vigilant Owl monitor group chats without invading privacy?",
-      a: "Vigilant Owl uses AI to assess the general tone of group conversations without reading specific messages. This approach keeps your child's privacy intact while offering insights into their online interactions."
-    },
-    {
-      q: "What should I do if I'm interested in Vigilant Owl?",
-      a: "Simply fill out the contact form below and provide your email address. We'll keep you updated on the latest developments, share exclusive insights, and offer early access to Vigilant Owl as we prepare for launch."
-    },
-    {
-      q: "Which platforms are supported?",
-      a: "Currently, Vigilant Owl supports WhatsApp, with plans to expand to other popular messaging and social media platforms."
-    },
-    {
-      q: "How is my data protected?",
-      a: "Vigilant Owl adheres to strict data security protocols, ensuring any collected information remains private and secure."
-    },
-    {
-      q: "Is Vigilant Owl difficult to set up?",
-      a: "No, Vigilant Owl is simple to set up. Parents add a designated bot to group chats, and the AI does the rest, providing easy-to-understand summaries."
-    }
-  ];
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
