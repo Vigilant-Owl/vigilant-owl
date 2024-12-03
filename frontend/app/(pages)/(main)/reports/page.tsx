@@ -32,9 +32,7 @@ import { toast } from "sonner";
 import { createClient } from "@/utils/supabase/client";
 import Link from "next/link";
 import { useUserAuth } from "@/contexts/UserContext";
-
 import React from 'react';
-import Rating from '@/components/Rating';
 
 const AREAS_OF_FOCUS_MAP = {
   bullyingHarassment: {
@@ -193,14 +191,14 @@ const Reports = () => {
   });
   const [groups, setGroups] = useState([]);
 
-  const getConcernLevelText = (rating: number) => {
-    if (rating === 0) return 'No Concern';
-    if (rating <= 1) return 'Very Low Concern';
-    if (rating <= 2) return 'Low Concern';
-    if (rating <= 3) return 'Moderate Concern';
-    if (rating <= 4) return 'High Concern';
-    return 'Critical Concern';
-  };
+  // const getConcernLevelText = (rating: number) => {
+  //   if (rating === 0) return 'No Concern';
+  //   if (rating <= 1) return 'Very Low Concern';
+  //   if (rating <= 2) return 'Low Concern';
+  //   if (rating <= 3) return 'Moderate Concern';
+  //   if (rating <= 4) return 'High Concern';
+  //   return 'Critical Concern';
+  // };
 
   const handleGetReport = useCallback(async (payload: any) => {
     try {
@@ -271,6 +269,9 @@ const Reports = () => {
     }
 
     handleGetGroupData();
+  }, [user]);
+
+  useEffect(() => {
     const channel = supabase.channel("reports_channel").on("postgres_changes", { event: "*", schema: "public", table: "reports" }, handleGetReport).subscribe();
     return () => {
       channel.unsubscribe();
@@ -420,6 +421,89 @@ const Reports = () => {
                 </Card>
               </div>
 
+              {/* Areas of Focus */}
+              <Card className="bg-gray-800">
+                <CardHeader className="pb-0 pt-6 px-4">
+                  <div className="flex items-center space-x-2">
+                    <MdOutlineInterests className="w-6 h-6 text-green-500" />
+                    <h4 className="text-xl font-bold text-white">Areas of Focus</h4>
+                  </div>
+                </CardHeader>
+                <CardBody>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    {Object.entries<number>(data.areasOfFocus).map(([key, rating]) => {
+                      const { label, icon: Icon, color } = AREAS_OF_FOCUS_MAP[key as keyof typeof AREAS_OF_FOCUS_MAP];
+                      const isConcerned = rating > 0;
+                      const concernText = isConcerned ? "Some content detected" : "No concern";
+                      const textColor = isConcerned ? 'text-red-500' : 'text-green-500';
+                      const statusEmoji = isConcerned ? '⚠️' : '✅';
+
+                      return (
+                        <div
+                          key={key}
+                          className={`flex flex-col items-center space-y-2 p-3 rounded-lg bg-gray-700`}
+                        >
+                          <div className="flex items-center space-x-2 mb-2">
+                            <Icon className={`w-6 h-6 ${color}`} />
+                            <span className="text-white text-sm">{label}</span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <span className="text-lg">{statusEmoji}</span>
+                            <span className={`text-lg font-medium ${textColor}`}>{concernText}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </CardBody>
+              </Card>
+
+              {/* Slang Dictionary */}
+              <Card className="bg-gray-800">
+                <CardHeader className="pb-0 pt-6 px-4">
+                  <div className="flex items-center space-x-2">
+                    <RiEmotionLine className="w-6 h-6 text-blue-500" />
+                    <h4 className="text-xl font-bold text-white">Slang Dictionary</h4>
+                  </div>
+                </CardHeader>
+                <CardBody>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {Object.entries<string>(data.slangDictionary).map(([slang, definition]) => (
+                      <div key={slang} className="flex flex-col bg-gray-700 p-4 rounded-lg">
+                        <p className="text-gray-300">{slang}</p>
+                        <p className="text-sm text-gray-400">{definition}</p>
+                      </div>
+                    ))}
+                  </div>
+                </CardBody>
+              </Card>
+
+              {/* Primary Emotions */}
+              <Card className="bg-gray-800">
+                <CardHeader className="pb-0 pt-6 px-4">
+                  <div className="flex items-center space-x-2">
+                    <RiEmotionLine className="w-6 h-6 text-yellow-500" />
+                    <h4 className="text-xl font-bold text-white">Primary Emotions</h4>
+                  </div>
+                </CardHeader>
+                <CardBody>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {emotionsList.map(({ emotion, value }) => (
+                      <div
+                        key={emotion}
+                        className="flex items-center space-x-2 bg-gray-700 p-4 rounded-lg"
+                      >
+                        {getEmotionIcon(emotion)}
+                        <div>
+                          <p className="text-gray-300 capitalize">{emotion}</p>
+                          <p className="text-lg font-bold text-white">{value}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardBody>
+              </Card>
+
               {/* Charts Row */}
               <div className="grid grid-cols-1 lg:grid-cols-1 gap-4 mb-6">
                 <Card className="bg-gray-800">
@@ -449,91 +533,6 @@ const Reports = () => {
                   </CardBody>
                 </Card>
               </div>
-
-              {/* Primary Emotions */}
-              <Card className="bg-gray-800">
-                <CardHeader className="pb-0 pt-6 px-4">
-                  <div className="flex items-center space-x-2">
-                    <RiEmotionLine className="w-6 h-6 text-yellow-500" />
-                    <h4 className="text-xl font-bold text-white">Primary Emotions</h4>
-                  </div>
-                </CardHeader>
-                <CardBody>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {emotionsList.map(({ emotion, value }) => (
-                      <div
-                        key={emotion}
-                        className="flex items-center space-x-2 bg-gray-700 p-4 rounded-lg"
-                      >
-                        {getEmotionIcon(emotion)}
-                        <div>
-                          <p className="text-gray-300 capitalize">{emotion}</p>
-                          <p className="text-lg font-bold text-white">{value}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardBody>
-              </Card>
-
-              {/* Areas of Focus */}
-              <Card className="bg-gray-800">
-                <CardHeader className="pb-0 pt-6 px-4">
-                  <div className="flex items-center space-x-2">
-                    <MdOutlineInterests className="w-6 h-6 text-green-500" />
-                    <h4 className="text-xl font-bold text-white">Areas of Focus by Date</h4>
-                  </div>
-                </CardHeader>
-                <CardBody>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {Object.entries<number>(data.areasOfFocus).map(([key, rating]) => {
-                      const { label, icon: Icon, color } = AREAS_OF_FOCUS_MAP[key as keyof typeof AREAS_OF_FOCUS_MAP];
-
-                      return (
-                        <div
-                          key={key}
-                          className="flex flex-col items-center space-y-2 p-3 bg-gray-700 rounded-lg"
-                        >
-                          <div className="flex items-center space-x-2 mb-2">
-                            <Icon className={`w-6 h-6 ${color}`} />
-                            <span className="text-white text-sm">{label}</span>
-                          </div>
-                          <Rating
-                            totalStars={5}
-                            initialRating={rating}
-                            readOnly
-                            filledColor={color}
-                            unfilledColor="text-gray-500"
-                          />
-                          <span className="text-gray-400 text-xs">
-                            {getConcernLevelText(rating)}
-                          </span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </CardBody>
-              </Card>
-
-              {/* Slang Dictionary */}
-              <Card className="bg-gray-800">
-                <CardHeader className="pb-0 pt-6 px-4">
-                  <div className="flex items-center space-x-2">
-                    <RiEmotionLine className="w-6 h-6 text-blue-500" />
-                    <h4 className="text-xl font-bold text-white">Slang Dictionary</h4>
-                  </div>
-                </CardHeader>
-                <CardBody>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {Object.entries<string>(data.slangDictionary).map(([slang, definition]) => (
-                      <div key={slang} className="flex flex-col bg-gray-700 p-4 rounded-lg">
-                        <p className="text-gray-300">{slang}</p>
-                        <p className="text-sm text-gray-400">{definition}</p>
-                      </div>
-                    ))}
-                  </div>
-                </CardBody>
-              </Card>
             </div>)}
       </div>
     );

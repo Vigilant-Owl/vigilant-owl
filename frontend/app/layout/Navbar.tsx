@@ -117,6 +117,7 @@ const Header = () => {
     try {
       await supabase.auth.signOut();
       localStorage.clear();
+      setUser(null);
     } catch (error) {
       console.error(error);
       toast.error("Error logging out");

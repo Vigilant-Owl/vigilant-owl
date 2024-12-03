@@ -8,6 +8,7 @@ import Joi from 'joi';
 import { apiLoginUser } from "../apis/auth";
 import { ResponseData } from "../types";
 import { createClient } from "@/utils/supabase/client";
+import Link from "next/link";
 
 const supabase = createClient();
 
@@ -122,7 +123,13 @@ const Login = ({ onClick }: { onClick?: () => void }) => {
                         <IoMdEye className="text-2xl text-default-400 pointer-events-none" />
                       )}
                     </button>
-                  } />
+                  }
+                />
+                <div className="space-x-2 px-1" onClick={() => onClose()}>
+                  <Link href="/forgot-password" className="text-blue-600 hover:underline dark:text-blue-400 text-sm">
+                    Forgot Password?
+                  </Link>
+                </div>
               </ModalBody>
               <ModalFooter>
                 <Button
