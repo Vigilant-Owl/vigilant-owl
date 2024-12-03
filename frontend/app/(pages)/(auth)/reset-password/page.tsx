@@ -6,12 +6,11 @@ import { Button, Input } from "@nextui-org/react";
 import { toast } from "sonner";
 import { IoMdEye, IoMdEyeOff } from "react-icons/io";
 import { createClient } from "@/utils/supabase/client";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 const UpdatePassword = () => {
   const supabase = createClient();
   const router = useRouter();
-  const { query } = router;
   const [loading, setLoading] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -35,6 +34,7 @@ const UpdatePassword = () => {
     if (error) throw error;
     if (data) {
       toast.success("Successfully updated the password.");
+      router.push('/dashboard');
     }
     try {
     } catch (err: any) {
@@ -48,25 +48,35 @@ const UpdatePassword = () => {
   useEffect(() => {
     let errorMessage = null;
 
-    if (query.error) {
-      const description = query.error_description ? decodeURIComponent(query.error_description.toString()) : 'Cannot reset your password due to an invalid or expired link.';
-      errorMessage = description;
-    }
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const queryError = urlParams.get('error');
+      const queryErrorDescription = urlParams.get('error_description');
 
-    if (window.location.hash) {
-      const hashParams = new URLSearchParams(window.location.hash.substring(1));
-      const hashError = hashParams.get('error');
-      if (hashError) {
-        const hashDescription = hashParams.get('error_description') ? decodeURIComponent(hashParams.get('error_description')!) : 'Cannot reset your password due to an invalid or expired link.';
-        errorMessage = hashDescription;
+      if (queryError) {
+        errorMessage = queryErrorDescription
+          ? decodeURIComponent(queryErrorDescription)
+          : 'Cannot reset your password due to an invalid or expired link.';
+      }
+
+      if (!errorMessage && window.location.hash) {
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        const hashError = hashParams.get('error');
+
+        if (hashError) {
+          const hashDescription = hashParams.get('error_description');
+          errorMessage = hashDescription
+            ? decodeURIComponent(hashDescription)
+            : 'Cannot reset your password due to an invalid or expired link.';
+        }
+      }
+
+      if (errorMessage) {
+        setError(errorMessage);
+        toast.error(errorMessage);
       }
     }
-
-    if (errorMessage) {
-      setError(errorMessage);
-      toast.error(errorMessage);
-    }
-  }, [query]);
+  }, []);
 
   return (
     <div className="justify-center flex flex-col gap-3">
