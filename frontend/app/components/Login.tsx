@@ -52,22 +52,25 @@ const Login = ({ onClick }: { onClick?: () => void }) => {
       console.log("Response", response);
       if (response && response.status === "success") {
         localStorage.setItem("token", response.data.token);
+
+        const { data: result, error } = await supabase.auth.signInWithPassword(
+          data
+        );
+
+        console.log("Result", result);
+
+        if (error) {
+          setLoading(false);
+          return toast.error(error.message);
+        }
+
+        toast.success("Welcome to vigilant owl!");
+        onClose();
+        if (onClick) onClick();
+      } else {
+        console.log(response)
+        toast.error(response.message);
       }
-
-      const { data: result, error } = await supabase.auth.signInWithPassword(
-        data
-      );
-
-      console.log("Result", result);
-
-      if (error) {
-        setLoading(false);
-        return toast.error(error.message);
-      }
-
-      toast.success("Welcome to vigilant owl!");
-      onClose();
-      if (onClick) onClick();
     } catch (err) {
       console.error(err);
     } finally {

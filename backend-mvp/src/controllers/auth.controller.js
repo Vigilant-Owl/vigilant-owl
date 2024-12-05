@@ -77,13 +77,37 @@ module.exports = {
       });
     }
   },
-  resetPassword: async (req, res, next) => {
+  changePassword: async (req, res, next) => {
     try {
       const { currentPassword, newPassword } = req.body;
       console.log(currentPassword, newPassword);
       const { data, error } = await supabase.rpc("change_password", {
         user_id: req.userId,
         current_password: currentPassword,
+        new_password: newPassword,
+      });
+      if (error) {
+        return res.status(404).json({
+          status: "error",
+          message: error.message,
+        });
+      }
+      return res.status(200).json({
+        status: "success",
+      });
+    } catch (err) {
+      console.error(err);
+      return res.status(400).json({
+        status: "error",
+        message: err.message,
+      });
+    }
+  },
+  resetPassword: async (req, res, next) => {
+    try {
+      const { newPassword } = req.body;
+      const { data, error } = await supabase.rpc("reset_password", {
+        user_id: req.userId,
         new_password: newPassword,
       });
       if (error) {

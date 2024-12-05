@@ -57,12 +57,12 @@ const Profile = () => {
     }
   };
 
-  const handleResetPassword = async () => {
+  const handleUpdatePassword = async () => {
     try {
       router.replace("/update-password");
     } catch (err: any) {
       console.error(err);
-      toast.error("Failed to send reset password email.");
+      toast.error("Failed to send change password email.");
     }
   }
 
@@ -114,8 +114,8 @@ const Profile = () => {
           </Button>
         </div>
       </form>
-      <Button onClick={handleResetPassword} color="secondary" isDisabled={loading}>
-        Reset Password
+      <Button onClick={handleUpdatePassword} color="secondary" isDisabled={loading}>
+        Update Password
       </Button>
     </div>
   );

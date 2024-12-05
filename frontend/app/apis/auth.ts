@@ -12,8 +12,9 @@ export const apiLoginUser = async (data: LoginData) => {
     const response = await axios.post(`${apiUrl}/login`, data);
     console.log(response);
     return response.data;
-  } catch (error) {
-    console.error(error);
+  } catch (err: any) {
+    console.error(err);
+    return err.response.data;
   }
 };
 
@@ -26,8 +27,26 @@ export const apiRegisterUser = async (data: RegisterData) => {
   }
 };
 
-export const apiResetPassword = async (data: {
+export const apiChangePassword = async (data: {
   currentPassword: string;
+  newPassword: string;
+}) => {
+  try {
+    const token = getAuthToken();
+
+    const response = await axios.post(`${apiUrl}/change-password`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (err: any) {
+    console.error(err);
+    return err.response.data;
+  }
+};
+
+export const apiResetPassword = async (data: {
   newPassword: string;
 }) => {
   try {

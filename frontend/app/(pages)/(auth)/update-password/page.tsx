@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Button, Input } from "@nextui-org/react";
 import { toast } from "sonner";
 import { IoMdEye, IoMdEyeOff } from "react-icons/io";
-import { apiResetPassword } from "@/apis/auth";
+import { apiChangePassword } from "@/apis/auth";
 import { ResponseData } from "@/types";
 
 const UpdatePassword = () => {
@@ -29,7 +29,7 @@ const UpdatePassword = () => {
     setLoading(true);
 
     try {
-      const response: ResponseData = await apiResetPassword({ currentPassword, newPassword });
+      const response: ResponseData = await apiChangePassword({ currentPassword, newPassword });
 
       console.log(response);
       if (response && response.status === "success") {

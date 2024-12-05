@@ -11,5 +11,6 @@ router.post("/register", controller.register);
 router.use(verifyToken);
 
 router.post("/reset-password", controller.resetPassword);
+router.post("/change-password", controller.changePassword);
 
 module.exports = router;

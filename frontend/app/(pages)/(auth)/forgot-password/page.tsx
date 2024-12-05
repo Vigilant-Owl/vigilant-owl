@@ -22,9 +22,8 @@ const ForgotPassword = () => {
     setLoading(true);
 
     try {
-      const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${process.env.NEXT_PUBLIC_SERVER_URL}/reset-password`,
-      });
+      console.log(process.env.NEXT_PUBLIC_SERVER_URL);
+      const { data, error } = await supabase.auth.resetPasswordForEmail(email);
       if (error) throw error;
       if (data) {
         toast.success("A password reset email has been successfully sent. Please check your email for further instructions.");
