@@ -8,7 +8,7 @@ import { IoMdEye, IoMdEyeOff } from "react-icons/io";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 
-const UpdatePassword = () => {
+const ResetPassword = () => {
   const supabase = createClient();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -18,25 +18,27 @@ const UpdatePassword = () => {
   const [error, setError] = useState("");
 
   const handlePasswordUpdate = async (e: React.FormEvent) => {
-    setIsVisible(false);
-    e.preventDefault();
-
-    if (newPassword !== confirmPassword) {
-      return toast.error("Passwords do not match");
-    }
-
-    setLoading(true);
-
-    const { data, error } = await supabase.auth.updateUser({
-      password: newPassword
-    });
-
-    if (error) throw error;
-    if (data) {
-      toast.success("Successfully updated the password.");
-      router.push('/dashboard');
-    }
     try {
+      setIsVisible(false);
+      e.preventDefault();
+
+      if (newPassword !== confirmPassword) {
+        return toast.error("Passwords do not match");
+      }
+
+      setLoading(true);
+
+      console.log("update");
+      const { data, error } = await supabase.auth.updateUser({
+        password: newPassword
+      });
+      console.log(data);
+
+      if (error) throw error;
+      if (data) {
+        toast.success("Successfully updated the password.");
+        router.push('/dashboard');
+      }
     } catch (err: any) {
       console.error(err);
       toast.error(err.message);
@@ -119,7 +121,7 @@ const UpdatePassword = () => {
             />
             <Button
               type="submit"
-              aria-label="Update Password"
+              aria-label="Reset Password"
               color="primary"
               isLoading={loading}
             >
@@ -132,4 +134,4 @@ const UpdatePassword = () => {
   );
 }
 
-export default UpdatePassword;
+export default ResetPassword;

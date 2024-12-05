@@ -67,6 +67,7 @@ const Header = () => {
   }
 
   const handleAuthStateChange = async (event: string) => {
+    console.log(event);
     if (event === "SIGNED_OUT") {
       setUser(null);
       clearStorage();
@@ -83,6 +84,8 @@ const Header = () => {
       } else {
         setUser(null);
       }
+    } else if (event === 'PASSWORD_RECOVERY') {
+      console.log("Password recovery session detected");
     }
   }
 

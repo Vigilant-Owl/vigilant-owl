@@ -54,9 +54,11 @@ const Login = ({ onClick }: { onClick?: () => void }) => {
         localStorage.setItem("token", response.data.token);
       }
 
-      const { error } = await supabase.auth.signInWithPassword(
+      const { data: result, error } = await supabase.auth.signInWithPassword(
         data
       );
+
+      console.log("Result", result);
 
       if (error) {
         setLoading(false);

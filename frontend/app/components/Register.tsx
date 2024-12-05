@@ -77,7 +77,7 @@ const Register = ({ onClick }: { onClick?: () => void }) => {
         return toast.error(insertError.message);
       }
 
-      toast.success("Welcome to vigilant owl!");
+      toast.success("Welcome to Vigilant Owl! Please check your email and confirm your address to complete your signup process.");
       onClose();
       if (onClick) onClick();
     } catch (err) {
