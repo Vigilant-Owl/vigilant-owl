@@ -6,13 +6,11 @@ import { Button, Input } from "@nextui-org/react";
 import { toast } from "sonner";
 import { IoMdEye, IoMdEyeOff } from "react-icons/io";
 import { createClient } from "@/utils/supabase/client";
-import { useUserAuth } from "@/contexts/UserContext";
 import { ResponseData } from "@/types";
 import { apiResetPassword } from "@/apis/auth";
 
 const ResetPassword = () => {
   const supabase = createClient();
-  const { user } = useUserAuth();
   const [loading, setLoading] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
