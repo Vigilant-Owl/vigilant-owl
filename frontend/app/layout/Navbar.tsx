@@ -1,15 +1,33 @@
+"use client"
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable react-hooks/exhaustive-deps */
-
-"use client";
-
+import React, { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { FiBarChart2, FiFileText, FiSettings, FiHelpCircle, FiUser, FiLogOut } from "react-icons/fi";
-import { Navbar, NavbarBrand, NavbarContent, User, NavbarMenuToggle, NavbarMenu, Dropdown, DropdownTrigger, DropdownItem, DropdownMenu, Button } from "@nextui-org/react";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { toast } from "sonner";
+import {
+  FiBarChart2,
+  FiFileText,
+  FiSettings,
+  FiHelpCircle,
+  FiUser,
+  FiLogOut
+} from "react-icons/fi";
+import {
+  Navbar,
+  NavbarBrand,
+  NavbarContent,
+  User,
+  NavbarMenuToggle,
+  NavbarMenu,
+  Dropdown,
+  DropdownTrigger,
+  DropdownItem,
+  DropdownMenu,
+  Button
+} from "@nextui-org/react";
+
 import { createClient } from "@/utils/supabase/client";
 import NavbarMenus from "./NavbarMenus";
 import Login from "../components/Login";
@@ -18,32 +36,54 @@ import { lato, roboto } from "../fonts";
 import logoImage from "@/assets/logo.webp";
 import { useUserAuth } from "@/contexts/UserContext";
 
-const supabase = createClient();
+// Type definitions
+interface UserProfile {
+  firstName: string;
+  lastName: string;
+  email: string;
+  id: string;
+}
 
-const menuItems = [
+interface MenuItem {
+  name: string;
+  route: string;
+  icon: React.ReactNode;
+}
+
+// Constants
+const MENU_ITEMS: MenuItem[] = [
   { name: "Open a new group", route: "/new-group", icon: <FiBarChart2 /> },
   { name: "Reports", route: "/reports", icon: <FiFileText /> },
   { name: "Subscriptions", route: "/subscriptions", icon: <FiSettings /> },
   { name: "Help", route: "/help", icon: <FiHelpCircle /> },
 ];
 
-const Header = () => {
+const SCROLL_THRESHOLD = 20;
+
+const Header: React.FC = () => {
   const router = useRouter();
   const pathname = usePathname();
   const { user, setUser } = useUserAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const supabase = createClient();
 
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+  // Memoized scroll handler to prevent unnecessary re-renders
+  const handleScroll = useCallback(() => {
+    setIsScrolled(window.scrollY > SCROLL_THRESHOLD);
   }, []);
 
-  const fetchUserProfile = async (userId: string) => {
+  // Centralized storage clearing method
+  const clearAllStorage = useCallback(() => {
+    [window.localStorage, window.sessionStorage].forEach((storage) => {
+      Object.keys(storage).forEach((key) => {
+        storage.removeItem(key);
+      });
+    });
+  }, []);
+
+  // Fetch user profile with improved error handling
+  const fetchUserProfile = useCallback(async (userId: string) => {
     try {
       const { data: profile, error }: { data: any, error: any } = await supabase
         .from("profiles")
@@ -53,50 +93,68 @@ const Header = () => {
 
       if (error) throw error;
 
-      const user = {
+      const userProfile: UserProfile = {
         firstName: profile?.first_name || 'User',
         lastName: profile?.last_name || '',
         email: profile?.email,
         id: userId,
-      }
-      setUser(user);
+      };
+
+      setUser(userProfile);
     } catch (error) {
-      console.error(error);
+      console.error("Profile fetch error:", error);
       toast.error("Failed to fetch user profile");
     }
-  }
+  }, [setUser, supabase]);
 
-  const handleAuthStateChange = async (event: string) => {
-    console.log(event);
-    if (event === "SIGNED_OUT") {
-      setUser(null);
-      clearStorage();
-      toast.success("Signed out successfully");
-    } else if (event === "SIGNED_IN" || event === "USER_UPDATED") {
-      const { data: { user }, error } = await supabase.auth.getUser();
-      if (error) {
-        toast.error("Authentication error");
-        return;
-      }
-      if (user) {
-        fetchUserProfile(user.id);
-        toast.success("Signed in successfully");
-      } else {
+  // Handle authentication state changes
+  const handleAuthStateChange = useCallback(async (event: string) => {
+    switch (event) {
+      case "SIGNED_OUT":
         setUser(null);
-      }
-    } else if (event === 'PASSWORD_RECOVERY') {
-      console.log("Password recovery session detected");
+        clearAllStorage();
+        toast.success("Signed out successfully");
+        break;
+      case "SIGNED_IN":
+      case "USER_UPDATED":
+        const { data: { user }, error } = await supabase.auth.getUser();
+        if (error) {
+          toast.error("Authentication error");
+          return;
+        }
+        if (user) {
+          await fetchUserProfile(user.id);
+          toast.success("Signed in successfully");
+        } else {
+          setUser(null);
+        }
+        break;
+      case 'PASSWORD_RECOVERY':
+        console.log("Password recovery session detected");
+        break;
     }
-  }
+  }, [clearAllStorage, fetchUserProfile, setUser, supabase]);
 
-  const clearStorage = () => {
-    [window.localStorage, window.sessionStorage].forEach((storage) => {
-      Object.entries(storage).forEach(([key]) => {
-        storage.removeItem(key);
-      });
-    });
-  };
+  // Logout handler
+  const handleLogOut = useCallback(async () => {
+    try {
+      await supabase.auth.signOut();
+      localStorage.clear();
+      setUser(null);
+      router.push('/');
+    } catch (error) {
+      console.error("Logout error:", error);
+      toast.error("Error logging out");
+    }
+  }, [router, setUser, supabase]);
 
+  // Effect for scroll listener
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [handleScroll]);
+
+  // Effect for initial auth state and subscription
   useEffect(() => {
     const fetchCurrentUser = async () => {
       const { data: { session }, error } = await supabase.auth.getSession();
@@ -105,7 +163,7 @@ const Header = () => {
         return;
       }
       if (session) {
-        fetchUserProfile(session.user.id);
+        await fetchUserProfile(session.user.id);
       } else {
         setUser(null);
       }
@@ -114,19 +172,9 @@ const Header = () => {
     fetchCurrentUser();
     const { data: { subscription } } = supabase.auth.onAuthStateChange(handleAuthStateChange);
     return () => subscription.unsubscribe();
-  }, []);
+  }, [fetchUserProfile, handleAuthStateChange, setUser, supabase]);
 
-  const handleLogOut = async () => {
-    try {
-      await supabase.auth.signOut();
-      localStorage.clear();
-      setUser(null);
-    } catch (error) {
-      console.error(error);
-      toast.error("Error logging out");
-    }
-  }
-
+  // Dynamic navbar class names
   const navbarClassName = `
     max-w-[1120px] 
     text-2xl 
@@ -188,6 +236,7 @@ const Header = () => {
           </Link>
         </NavbarBrand>
       </NavbarContent>
+
       <NavbarContent className="hidden sm:flex gap-4 w-full" justify="center">
         <NavbarMenus
           pathname={pathname}
@@ -216,13 +265,11 @@ const Header = () => {
                 }}
               />
             </DropdownTrigger>
-            <DropdownMenu
-              aria-label="User actions"
-            >
-              <DropdownItem key="profile" onClick={() => {
-                console.log("Profile clicked");
-                router.replace("/profile")
-              }}>
+            <DropdownMenu aria-label="User actions">
+              <DropdownItem
+                key="profile"
+                onClick={() => router.replace("/profile")}
+              >
                 <div className="flex items-center gap-2 text-default-900">
                   <FiUser /> Profile
                 </div>
@@ -253,11 +300,12 @@ const Header = () => {
       >
         {/* Navigation Links */}
         <div className="flex flex-col gap-2">
-          {menuItems.map((item, index) => (
+          {MENU_ITEMS.map((item, index) => (
             <Link
-              key={`${item}-${index}`}
+              key={`${item.name}-${index}`}
               href={item.route}
-              className={`transition-all flex items-center gap-3 ${pathname === item.route ? "bg-default-50" : "text-default-900 hover:bg-default-50"} p-2 rounded-lg transition-colors`}
+              className={`transition-all flex items-center gap-3 ${pathname === item.route ? "bg-default-50" : "text-default-900 hover:bg-default-50"
+                } p-2 rounded-lg transition-colors`}
               onClick={() => setIsMenuOpen(false)}
             >
               <span className="text-xl w-6 text-center">{item.icon}</span>
@@ -272,7 +320,8 @@ const Header = () => {
             <div className="flex flex-col gap-2">
               <Link
                 href="/profile"
-                className={`transition-all flex items-center gap-3 ${pathname === "/profile" ? "bg-default-50" : "text-default-900 hover:bg-default-50"} p-2 rounded-lg transition-colors`}
+                className={`transition-all flex items-center gap-3 ${pathname === "/profile" ? "bg-default-50" : "text-default-900 hover:bg-default-50"
+                  } p-2 rounded-lg transition-colors`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 <FiUser className="text-xl w-6 text-center" />
