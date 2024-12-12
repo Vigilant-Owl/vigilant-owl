@@ -184,6 +184,17 @@ const Header: React.FC = () => {
     ${isScrolled ? 'bg-default-100/50 backdrop-blur-md shadow-md' : 'bg-transparency'}
   `;
 
+  useEffect(() => {
+    const handleResize = () => {
+      document.documentElement.style.setProperty("--vh", window.innerHeight * 0.01 + "px");
+    };
+
+    handleResize(); // Set initial value
+    window.addEventListener('resize', handleResize);
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   return (
     <Navbar
       isBordered
@@ -296,7 +307,7 @@ const Header: React.FC = () => {
 
       {/* Mobile Menu */}
       <NavbarMenu
-        className="bg-default-100/95 backdrop-blur-xl pt-6 px-4 gap-6 pb-4"
+        className="bg-default-100/95 backdrop-blur-xl pt-6 px-4 gap-6 pb-4 h-[calc(var(--vh,1vh)*100)] max-h-[calc(var(--vh,1vh)*85)]"
       >
         {/* Navigation Links */}
         <div className="flex flex-col gap-2">
