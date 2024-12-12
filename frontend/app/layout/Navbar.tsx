@@ -113,7 +113,6 @@ const Header: React.FC = () => {
       case "SIGNED_OUT":
         setUser(null);
         clearAllStorage();
-        toast.success("Signed out successfully");
         break;
       case "SIGNED_IN":
       case "USER_UPDATED":
@@ -142,6 +141,7 @@ const Header: React.FC = () => {
       localStorage.clear();
       setUser(null);
       router.push('/');
+      toast.success("Signed out successfully");
     } catch (error) {
       console.error("Logout error:", error);
       toast.error("Error logging out");

@@ -33,8 +33,9 @@ export const getSessionDetail = async (sessionId: string | null) => {
       },
     });
     return response.data;
-  } catch (err) {
+  } catch (err: any) {
     console.error(err);
+    return err.response.data;
   }
 };
 
@@ -48,7 +49,8 @@ export const cancelSubscription = async (data: { subscriptionId: string }) => {
       },
     });
     return response.data;
-  } catch (err) {
+  } catch (err: any) {
     console.error(err);
+    return err.response.data;
   }
 };

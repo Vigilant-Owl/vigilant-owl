@@ -9,7 +9,7 @@ const {
   unrecognizedResponseMessage,
 } = require("../constants/messages");
 
-const SESSION_FILE_PATH = "storage/sessions/session.json";
+const SESSION_FILE_PATH = "session";
 
 global.client = new Client({
   puppeteer: {

@@ -44,7 +44,9 @@ const BillingPage: React.FC = () => {
         setIsLoading(true);
         const response = await getSessionDetail(sessionId);
 
-        if (response) {
+        if (response.message) {
+          toast.error(response.message);
+        } else if (response) {
           setSessionDetails(response);
 
           // Successful payment handling

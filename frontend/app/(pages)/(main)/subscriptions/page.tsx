@@ -12,8 +12,8 @@ import { createClient } from "@/utils/supabase/client";
 import { useUserAuth } from "@/contexts/UserContext";
 
 const PRICE_IDS = {
-  monthly: "price_1QMX3kRoMLPC6yHCvIqEA8LV",
-  yearly: "price_1QNEjZRoMLPC6yHClWRZ5vye",
+  monthly: "price_1QV7OaFsJOrgJaB4rXviKPDJ",
+  yearly: "price_1QV7PeFsJOrgJaB4j6mJ2nsd",
 };
 
 const supabase = createClient();
@@ -100,7 +100,7 @@ const PricingPlans = () => {
     }
 
     handleGetInitialData();
-  }, []);
+  }, [user]);
 
   const handleSubscribe = useCallback(async (priceId: string | null) => {
     try {
@@ -133,7 +133,7 @@ const PricingPlans = () => {
             sessionId: response.data.result.id
           });
         } else {
-          toast.error("Failed to create checkout session");
+          toast.error(response.message || "Failed to create checkout session");
         }
       } catch (error) {
         console.error(error);
@@ -161,6 +161,9 @@ const PricingPlans = () => {
           const response = await cancelSubscription({ subscriptionId });
           if (response.status === "success") {
             toast.success(response.message);
+          }
+          else {
+            toast.error(response.message);
           }
         }
       }

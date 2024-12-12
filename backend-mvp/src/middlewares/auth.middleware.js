@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 
 function verifyToken(req, res, next) {
   const authHeader = req.header("Authorization");
-  if (!authHeader) return res.status(401).json({ error: "Access denied" });
+  if (!authHeader) return res.status(401).json({ error: "Access denied", message: "Access denied, please sign in first." });
   const token = authHeader.startsWith("Bearer ")
     ? authHeader.slice(7)
     : authHeader;
@@ -14,7 +14,7 @@ function verifyToken(req, res, next) {
     next();
   } catch (error) {
     console.error(error);
-    res.status(401).json({ error: "Invalid token" });
+    res.status(401).json({ error: "Invalid token", message: "Invalid token, please sign in again." });
   }
 }
 
