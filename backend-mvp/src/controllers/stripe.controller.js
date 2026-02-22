@@ -1,5 +1,24 @@
 const Stripe = require("stripe");
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+let stripe;
+if (process.env.STRIPE_SECRET_KEY) {
+  stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+} else {
+  console.warn("Warning: STRIPE_SECRET_KEY is missing. Stripe functionality will be disabled.");
+  stripe = {
+    checkout: {
+      sessions: {
+        create: async () => { throw new Error("Stripe is not configured"); },
+        retrieve: async () => { throw new Error("Stripe is not configured"); }
+      }
+    },
+    webhooks: {
+      constructEvent: () => { throw new Error("Stripe is not configured"); }
+    },
+    subscriptions: {
+      cancel: async () => { throw new Error("Stripe is not configured"); }
+    }
+  };
+}
 const supabase = require("../config/supabase");
 
 module.exports = {
